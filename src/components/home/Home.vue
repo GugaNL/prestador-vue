@@ -31,7 +31,7 @@ export default {
           id: 22, 
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU"
            } }).then(response => {
-          console.log('response stat: ', response)
+          //console.log('response stat: ', response)
           this.stat = response.data.totalValues
         })
       }

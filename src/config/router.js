@@ -7,6 +7,7 @@ import UsersList from '../components/admin/UsersList'
 import UserRegisterEdit from '../components/admin/UserRegisterEdit'
 import CategoryList from '../components/admin/CategoryList'
 import CategoryRegisterEdit from '../components/admin/CategoryRegisterEdit'
+import ServicesList from '../components/admin/ServicesList'
 
 Vue.use(VueRouter)
 
@@ -18,6 +19,8 @@ const routes = [
     { name: 'newUser', path: '/user', component: UserRegisterEdit },
     { name: 'categories', path: '/categorias', component: CategoryList },
     { name: 'category', path: '/category/:id', component: CategoryRegisterEdit },
+    { name: 'services', path: '/servicos', component: ServicesList },
+    
 ]
 
 export default new VueRouter({

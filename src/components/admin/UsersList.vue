@@ -26,7 +26,7 @@
       </b-row>
     </b-form>
 
-    <b-table hover striped :items="users" :fields="fields">
+    <b-table hover striped :items="users" :fields="fields" class="text-center">
       <template v-slot:cell(actions)="data">
         <b-button variant="warning" @click="showUser(data.item)" class="mr-2">
           <i class="fa fa-pencil" />
