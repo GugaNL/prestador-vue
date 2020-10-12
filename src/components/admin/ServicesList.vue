@@ -29,9 +29,19 @@
       </template>
 
     <template v-slot:cell(status)="data">
-        <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" >
-            <b-form-select-option :value="data.status" >{{ convertStatus(data.item.status) }}</b-form-select-option>
-        </b-form-select>
+      <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" v-model="data.item.status" />
+    </template>
+
+    <template v-slot:cell(name)="data">
+      <b>{{ data.item.name }}</b>
+    </template>
+
+    <template v-slot:cell(initial_date)="data">
+      <span class="initial-date">{{ data.item.initial_date }} às {{ data.item.initial_time }}</span>
+    </template>
+
+    <template v-slot:cell(final_date)="data">
+      <span class="final-date">{{ data.item.final_date }} às {{ data.item.final_time }}</span>
     </template>
 
     </b-table>
@@ -56,17 +66,19 @@ export default {
         { key: "name", label: "Serviço", sortable: true },
         { key: "description", label: "Descrição", sortable: false },
         { key: "value", label: "Valor", sortable: false },
-        { key: "initial_datetime", label: "Início", sortable: false },
-        { key: "final_datetime", label: "Fim", sortable: false },
+        { key: "initial_date", label: "Início", sortable: false },
+        { key: "final_date", label: "Fim", sortable: false },
         { key: "status", label: "Status", sortable: false },
         { key: "category.name", label: "Categoria", sortable: false },
         { key: "user.first_name", label: "Usuário", sortable: false },
         { key: "provider.first_name", label: "Prestador", sortable: false },
+        { key: 'actions', label: 'Ações' }
       ],
       optionsStatus: [
         { value: 'a', text: 'Pendente' },
-        { value: 'b', text: 'Aprovado' },
-        { value: 'c', text: 'Rejeitado' },
+        { value: 'b', text: 'Confirmado' },
+        { value: 'c', text: 'Finalizado' },
+        { value: 'd', text: 'Cancelado' },
       ],
       page: 1,
       limit: 0,
@@ -91,6 +103,12 @@ export default {
                 this.page = responseJson.services.pagination.page
                 this.limit = responseJson.services.pagination.perPage
                 this.count = responseJson.services.pagination.total
+                if (this.services.length > 0) {
+                  this.services.filter(el => {
+                    el.status = this.convertSelectedStatus(el.status)
+                  })
+                }
+                //console.log('this.services apos o filter: ', this.services)
             } else {
                 this.$toasted.global.defaultError({ msg: responseJson.message })
              }
@@ -99,14 +117,16 @@ export default {
         this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },
-    convertStatus(statusName) {
-      if (statusName === 'pending') {
-        return 'Pendente'
-      } else if (statusName === 'approved') {
-        return 'Aprovado'
-      } else {
-        return 'Rejeitado'
-      }
+    convertSelectedStatus(statusValue) {
+        if (statusValue == 'pending') {
+            return 'a'
+        } else if (statusValue == 'confirmed') {
+            return 'b'
+        } else if (statusValue == 'finished') {
+            return 'c'
+        } else {
+            return 'd'
+        }
     },
     changeStatus(item, event) {
         //console.log('this.selectedStatus: ', this.selectedStatus)
@@ -116,35 +136,38 @@ export default {
         newStatus = 'pending'
         newStatusBr = 'pendente'
       } else if (event == 'b') {
-        newStatus = 'approved'
-        newStatusBr = 'aprovado'
+        newStatus = 'confirmed'
+        newStatusBr = 'confirmado'
+      } else if(event == 'c') {
+        newStatus = 'finished'
+        newStatusBr = 'finalizado'
       } else {
-        newStatus = 'rejected'
-        newStatusBr = 'rejeitado'
+        newStatus = 'cancelled'
+        newStatusBr = 'cancelado'
       }
 
       if (newStatus !== item.status) {
-          this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
+        this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
         
-        const url = `${baseURL}/admin/update_service`
+        const url = `${baseURL}/admin/change_status_service`
         axios.post(url, {
           id: 22,
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          person_id: item.id,
+          service_id: item.id,
           status: newStatus,
         }).then(response => {
           let responseJson = response.data
-          console.log('response update status: ', responseJson)
+          console.log('response change status: ', responseJson)
           if (responseJson.success) {
             this.$toasted.global.defaultSuccess({ msg: responseJson.message })
-            this.loadUsers()
+            this.loadServices()
           } else {
             this.$toasted.global.defaultError({ msg: responseJson.message })
           }
         })
         }).catch(() => {
           
-          //this.loadUsers()
+          //this.loadServices()
         })
       }
     },
@@ -162,13 +185,13 @@ export default {
         axios.post(url, {
           id: 22,
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          user_id: item.id
+          service_id: item.id
         }).then(response => {
           console.log('response delete service: ', response)
           const responseJson = response.data
           if (responseJson.success == true) {
             this.$toasted.global.defaultSuccess({ msg: 'Serviço deletado com sucesso' })
-            this.loadUsers()
+            this.loadServices()
           } else {
             this.$toasted.global.defaultError({ msg: 'Falha na operação' })
           }
@@ -188,4 +211,10 @@ export default {
 </script>
 
 <style>
+.initial-date {
+  color: darkgreen;
+}
+.final-date {
+  color: blue;
+}
 </style>

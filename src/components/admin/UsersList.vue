@@ -37,9 +37,7 @@
       </template>
 
       <template v-slot:cell(status)="data">
-        <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" :key="selectedCountryId" >
-          <b-form-select-option :value="data.status" >{{ convertStatus(data.item.status) }}</b-form-select-option>
-        </b-form-select>
+        <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" v-model="data.item.status" />
       </template>
 
     </b-table>
@@ -104,6 +102,12 @@ export default {
           this.page = responseJson.users.pagination.page
           this.limit = responseJson.users.pagination.perPage
           this.count = responseJson.users.pagination.total
+          if (this.users.length > 0) {
+            this.users.filter(el => {
+              console.log('el: ', el)
+              el.status = this.convertSelectedStatus(el.status)
+            })
+          }
         } else {
           console.log('Erro')
         }
@@ -148,8 +152,17 @@ export default {
         return 'Rejeitado'
       }
     },
+    convertSelectedStatus(statusValue) {
+      if (statusValue == 'pending') {
+        return 'a'
+      } else if (statusValue == 'approved') {
+        return 'b'
+      } else {
+        return 'c'
+      }
+    },
     changeStatus(item, event) {
-      console.log('this.selectedStatus: ', this.selectedStatus)
+      //console.log('this.selectedStatus: ', this.selectedStatus)
       //console.log('item: ', item)
       let newStatus, newStatusBr = ''
 

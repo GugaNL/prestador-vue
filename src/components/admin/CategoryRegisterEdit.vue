@@ -30,7 +30,7 @@
         </b-col>
       </b-row>
       <b-button variant="success" @click="saveCategory">Salvar</b-button>
-      <router-link to="/categories">
+      <router-link to="/categorias">
         <b-button variant="primary" class="ml-5">Voltar</b-button>
       </router-link>
     </b-form>
@@ -46,7 +46,7 @@ import { baseURL } from "../../global"
 export default {
     data() {
         return {
-            category: {}
+          category: {}
         }
     },
     methods: {

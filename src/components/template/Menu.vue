@@ -26,8 +26,8 @@ export default {
                     { text: 'Nova categoria', data: { screen: 'newCategory' } },
                 ] },
                 { text: 'Serviço', children: [
-                    { text: 'Lista de serviços' },
-                    { text: 'Novo serviço' },
+                    { text: 'Lista de serviços', data: { screen: 'services' } },
+                    { text: 'Novo serviço', data: { screen: 'service' } },
                 ] }
             ]
         }
