@@ -179,11 +179,11 @@
         </b-col>
 
         <b-col md="4" sm="10">
-
-          <b-form-select v-model="user.address_state" :options="listStates" class="mt-4">
-            <option :value="user.address_state">{{ listStates.text }}</option>
-          </b-form-select>
-            
+          <b-form-group label="Estado" label-for="user-address-state">
+            <b-form-select v-model="user.address_state" :options="listStates">
+              <option :value="user.address_state">{{ listStates.text }}</option>
+            </b-form-select>
+          </b-form-group>
         </b-col>
       </b-row>
 

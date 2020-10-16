@@ -1,37 +1,37 @@
 <template>
-  <div class="user">
-    <h3>Lista de Usuários</h3>
+  <div class="provider">
+    <h3>Lista de Prestadores</h3>
     <hr>
-    <div class="user-content">
+    <div class="provider-content">
     <b-form>
-      <input id="user-id" type="hidden" v-model="user.id">
+      <input id="provider-id" type="hidden" v-model="provider.id">
       <b-row>
         <b-col md="3" sm="9">
-          <b-form-group label="Nome" label-for="user-name"> <!--label-for é o id do input  -->
-            <b-form-input id="user-name" type="text" v-model="user.first_name" placeholder="Nome do usuário" />
+          <b-form-group label="Nome" label-for="provider-name"> <!--label-for é o id do input  -->
+            <b-form-input id="provider-name" type="text" v-model="provider.first_name" placeholder="Nome do prestador" />
           </b-form-group>
-          <b-form-group label="Sobrenome" label-for="user-lastname"> <!--label-for é o id do input  -->
-            <b-form-input id="user-lastname" type="text" v-model="user.last_name" placeholder="Sobrenome do usuário" />
+          <b-form-group label="Sobrenome" label-for="provider-lastname"> <!--label-for é o id do input  -->
+            <b-form-input id="provider-lastname" type="text" v-model="provider.last_name" placeholder="Sobrenome do prestador" />
           </b-form-group>
         </b-col>
         <b-col md="3" sm="9">
-          <b-form-group label="Email" label-for="user-email"> <!--label-for é o id do input  -->
-            <b-form-input id="user-email" type="text" v-model="user.email" placeholder="Email do usuário" />
+          <b-form-group label="Email" label-for="provider-email"> <!--label-for é o id do input  -->
+            <b-form-input id="provider-email" type="text" v-model="provider.email" placeholder="Email do prestador" />
           </b-form-group>
         </b-col>
           <b-col md="3" sm="9" class="col-search">
-          <b-button variant="success" class="ml-5" @click="loadUsers">Pesquisar</b-button>
+          <b-button variant="success" class="ml-5" @click="loadproviders">Pesquisar</b-button>
           <b-button variant="primary" class="ml-5" @click="clearSearch">Limpar</b-button>
         </b-col>
       </b-row>
     </b-form>
 
-    <b-table hover striped :items="users" :fields="fields" class="text-center">
+    <b-table hover striped :items="providers" :fields="fields" class="text-center">
       <template v-slot:cell(actions)="data">
-        <b-button variant="warning" @click="showUser(data.item)" class="mr-2">
+        <b-button variant="warning" @click="showProvider(data.item)" class="mr-2">
           <i class="fa fa-pencil" />
         </b-button>
-        <b-button variant="danger" @click="deleteUser(data.item)">
+        <b-button variant="danger" @click="deleteProvider(data.item)">
           <i class="fa fa-trash" />
         </b-button>
       </template>
@@ -53,21 +53,21 @@ import axios from "axios"
 import { baseURL } from "../../global"
 
 export default {
-  name: "User",
+  name: "provider",
   data() {
     return {
       mode: "save",
-      user: {},
-      users: [],
+      provider: {},
+      providers: [],
       fields: [
-          { key: 'id', label: 'Código', sortable: true },
-          { key: 'first_name', label: 'Nome', sortable: true },
-          { key: 'last_name', label: 'Sobrenome', sortable: true },
-          { key: 'email', label: 'Email', sortable: true },
-          { key: 'document', label: 'CPF', sortable: false },
-          { key: 'phone', label: 'Telefone', sortable: false },
-          { key: 'status', label: 'Status', sortable: false },
-          { key: 'actions', label: 'Ações' }
+        { key: 'id', label: 'Código', sortable: true },
+        { key: 'first_name', label: 'Nome', sortable: true },
+        { key: 'last_name', label: 'Sobrenome', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'document', label: 'CPF', sortable: false },
+        { key: 'phone', label: 'Telefone', sortable: false },
+        { key: 'status', label: 'Status', sortable: false },
+        { key: 'actions', label: 'Ações' }
       ],
       optionsStatus: [
         { value: 'a', text: 'Pendente' },
@@ -81,29 +81,29 @@ export default {
     }
   },
   methods: {
-    loadUsers() {
-      //console.log('params: ', this.user)
-      const url = `${baseURL}/admin/list_users`
+    loadproviders() {
+      //console.log('params: ', this.provider)
+      const url = `${baseURL}/admin/list_providers`
       axios.get(url, {
         params: {
           id: 22,
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          first_name: this.user.first_name ? this.user.first_name : '',
-          last_name: this.user.last_name ? this.user.last_name : '',
-          email: this.user.email ? this.user.email : '',
+          first_name: this.provider.first_name ? this.provider.first_name : '',
+          last_name: this.provider.last_name ? this.provider.last_name : '',
+          email: this.provider.email ? this.provider.email : '',
           page: this.page
         },
       }).then(response => {
         const responseJson = response.data
-        //console.log('response list users: ', responseJson)
+        //console.log('response list providers: ', responseJson)
         if (responseJson.success == true) {
-          this.users = responseJson.users.data
-          this.page = responseJson.users.pagination.page
-          this.limit = responseJson.users.pagination.perPage
-          this.count = responseJson.users.pagination.total
-          if (this.users.length > 0) {
-            this.users.filter(el => {
-              console.log('el: ', el)
+          this.providers = responseJson.providers.data
+          this.page = responseJson.providers.pagination.page
+          this.limit = responseJson.providers.pagination.perPage
+          this.count = responseJson.providers.pagination.total
+          if (this.providers.length > 0) {
+            this.providers.filter(el => {
+              //console.log('el: ', el)
               el.status = this.convertSelectedStatus(el.status)
             })
           }
@@ -113,29 +113,29 @@ export default {
       })
     },
     clearSearch() {
-      this.user.first_name = ''
-      this.user.last_name = ''
-      this.user.email = ''
-      this.loadUsers()
+      this.provider.first_name = ''
+      this.provider.last_name = ''
+      this.provider.email = ''
+      this.loadproviders()
     },
-    showUser(item) {
-      //console.log('showUser: ', item)
-      this.$router.push(`/user/${item.id}`)
+    showProvider(item) {
+      //console.log('showprovider: ', item)
+      this.$router.push(`/provider/${item.id}`)
     },
-    deleteUser(item) {
-      //console.log('delete user: ', item)
-      this.$confirm(`Tem certeza que deseja deletar o usuário ${item.first_name}?` ).then(() => {
-        const url = `${baseURL}/admin/delete_user`
+    deleteProvider(item) {
+      //console.log('delete provider: ', item)
+      this.$confirm(`Tem certeza que deseja deletar o prestador ${item.first_name}?` ).then(() => {
+        const url = `${baseURL}/admin/delete_provider`
         axios.post(url, {
           id: 22,
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          user_id: item.id
+          provider_id: item.id
         }).then(response => {
-          console.log('response delete user: ', response)
+          console.log('response delete provider: ', response)
           const responseJson = response.data
           if (responseJson.success == true) {
-            this.$toasted.global.defaultSuccess({ msg: 'Usuário deletado com sucesso' })
-            this.loadUsers()
+            this.$toasted.global.defaultSuccess({ msg: 'Prestador deletado com sucesso' })
+            this.loadproviders()
           } else {
             this.$toasted.global.defaultError({ msg: 'Falha na operação' })
           }
@@ -187,38 +187,38 @@ export default {
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
           person_id: item.id,
           status: newStatus,
-          type: 'user'
+          type: 'provider'
         }).then(response => {
           let responseJson = response.data
           console.log('response update status: ', responseJson)
           if (responseJson.success) {
             this.$toasted.global.defaultSuccess({ msg: responseJson.message })
-            this.loadUsers()
+            this.loadproviders()
           } else {
             this.$toasted.global.defaultError({ msg: responseJson.message })
           }
         })
         }).catch(() => {
           
-          //this.loadUsers()
+          //this.loadproviders()
         })
       }
     },
   },
   watch: {
     page() {
-      this.loadUsers()
+      this.loadproviders()
     }
   },
   mounted() {
-    this.loadUsers()
+    this.loadproviders()
   },
 }
 </script>
 
 <style>
 
-.user-content {
+.provider-content {
   background-color: #fff;
   border-radius: 8px;
   padding: 15px;

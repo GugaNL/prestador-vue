@@ -46,7 +46,8 @@ import { baseURL } from "../../global"
 export default {
     data() {
         return {
-          category: {}
+          category: {},
+          editMode: false
         }
     },
     methods: {
@@ -70,26 +71,49 @@ export default {
       },
       saveCategory() {
         console.log('parametros: ', this.category)
-        const url = `${baseURL}/admin/update_category`
-        axios.post(url, {
+
+        if (this.editMode) { //Edit category
+          const url = `${baseURL}/admin/update_category`
+          axios.post(url, {
             id: 22,
             token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
             category_id: this.category.id,
             name: this.category.name,
             description: this.category.description
           
-        }).then(response => {
-          console.log('response update category: ', response.data)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-            this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
-            console.log('Editado com sucesso')
-          }
-        })
+          }).then(response => {
+            console.log('response update category: ', response.data)
+            const responseJson = response.data
+            if (responseJson.success == true) {
+              this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
+              console.log('Editado com sucesso')
+            }
+          })
+        } else { //New category
+          const url = `${baseURL}/admin/save_category`
+            axios.post(url, {
+            id: 22,
+            token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
+            name: this.category.name,
+            description: this.category.description
+          
+          }).then(response => {
+            console.log('response register category: ', response.data)
+            const responseJson = response.data
+            if (responseJson.success == true) {
+              this.$toasted.global.defaultSuccess({ msg: 'Categoria criada com sucesso' })
+              console.log('Cadastrado com sucesso')
+            }
+          })
+        }
+
       }
     },
     mounted() {
-      this.loadCategory()
+      if (this.$route.params.id) {
+        this.editMode = true
+        this.loadCategory()
+      }
     }
 }
 

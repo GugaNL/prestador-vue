@@ -18,8 +18,8 @@ export default {
                     { text: 'Novo usuário', data: { screen: 'newUser' } },
                 ] },
                 { text: 'Prestador', children: [
-                    { text: 'Lista de prestadores' },
-                    { text: 'Novo prestador' },
+                    { text: 'Lista de prestadores', data: { screen: 'providers' } },
+                    { text: 'Novo prestador', data: { screen: 'newProvider' } },
                 ] },
                 { text: 'Categoria', children: [
                     { text: 'Lista de categorias', data: { screen: 'categories' } },
@@ -44,7 +44,7 @@ export default {
     },
     methods: {
         onNodeSelect(node) {
-            console.log('onNodeSelect: ', node)
+            //console.log('onNodeSelect: ', node)
             if (node.data.screen) {
                 this.$router.push({ name: node.data.screen })
             }
