@@ -332,7 +332,7 @@ export default {
               formattedFinalDate,
               this.service.status ? this.service.status : "pending",
               this.service.category_id,
-              this.service.user_id
+              this.selectedUser.id
             )
 
             let responseJson = responseUpdateService.data

@@ -71,8 +71,8 @@ export default {
     /**
      * List providers
      */
-    listProviders(id, token) {
-        return api.get(constants.LIST_PROVIDERS, { params: { id, token } })
+    listProviders(id, token, first_name, last_name, email) {
+        return api.get(constants.LIST_PROVIDERS, { params: { id, token, first_name, last_name, email } })
     },
 
     /**
