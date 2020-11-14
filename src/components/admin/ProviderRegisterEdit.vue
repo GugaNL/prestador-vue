@@ -4,18 +4,16 @@
     <hr />
     <b-form>
 
-      <div class="conteiner-photo">
-        <b-avatar variant="primary" size="8rem" rounded button @click="onButtonClick" >
-        </b-avatar>
+    <div class="conteiner-photo">
+      <b-avatar variant="primary" size="8rem" rounded button @click="onButtonClick" :src="imageAvatar"  />
+    </div>
 
-        <label class="file-select">
-          <div class="select-button">
-            <span>Alterar</span>
-          </div>
-          <input type="file" @change="handleFileChange"/>
-        </label>
-      </div>
-
+    <input type="file"
+       ref="file"
+       :name="uploadFieldName"
+       @change="onFileChange($event.target.name, $event.target.files)"
+       style="display:none"
+    >
 
       <b-row>
         <b-col md="4" sm="10">
@@ -228,7 +226,12 @@ export default {
       editMode: false,
       listStates: [],
       selectedCategory: "",
-      selectedState: ""
+      selectedState: "",
+      uploadFieldName: 'file',
+      maxSize: 1024,
+      imageAvatar: '',
+      picture: {},
+      file: ''
     }
   },
   methods: {
@@ -319,11 +322,34 @@ export default {
       }
     },
     onButtonClick() {
-      console.log("changePhoto!")
+      this.$refs.file.click()
     },
-    handleFileChange() {
-
-    }
+    onFileChange(fieldName, file) {
+      const { maxSize } = this
+      let imageFile = file[0]
+      if (file.length > 0) {
+        let size = imageFile.size / maxSize / maxSize
+        if (!imageFile.type.match('image.*')) {
+          let errorText = 'Por favor selecione uma imagem'
+          console.log('errorText: ', errorText)
+        } else if (size > 1) {
+          let errorText = 'A imagem deve ter menos de 1MB'
+          console.log('errorText: ', errorText)
+        } else {
+          // Append file into FormData and turn file into image URL
+          let formData = new FormData()
+          let imageURL = URL.createObjectURL(imageFile)
+          formData.append(fieldName, imageFile)
+          console.log('imageFile: ', imageFile)
+          console.log('imageURL: ', imageURL)
+          this.imageAvatar = imageURL
+          this.picture = imageFile
+          console.log('picture: ', this.picture)
+          // Emit the FormData and image URL to the parent component
+          //this.$emit('input', { formData, imageURL })
+        }
+      }
+    },
   },
   mounted() {
     //console.log('props editMode: ', this.$route)
