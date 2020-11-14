@@ -31,13 +31,13 @@
         <b-button variant="warning" @click="showUser(data.item)" class="mr-2">
           <i class="fa fa-pencil" />
         </b-button>
-        <b-button variant="danger" @click="deleteUser(data.item)">
+        <b-button variant="danger" @click="notifyDeleteUser(data.item)">
           <i class="fa fa-trash" />
         </b-button>
       </template>
 
       <template v-slot:cell(status)="data">
-        <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" v-model="data.item.status" />
+        <b-form-select :options="optionsStatus" v-on:change="notifyChangeStatus(data.item, $event)" v-model="data.item.status" />
       </template>
 
     </b-table>
@@ -49,8 +49,7 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
+import userApi from '../../services/api/userApi'
 
 export default {
   name: "User",
@@ -81,36 +80,36 @@ export default {
     }
   },
   methods: {
-    loadUsers() {
+    async loadUsers() {
       //console.log('params: ', this.user)
-      const url = `${baseURL}/admin/list_users`
-      axios.get(url, {
-        params: {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          first_name: this.user.first_name ? this.user.first_name : '',
-          last_name: this.user.last_name ? this.user.last_name : '',
-          email: this.user.email ? this.user.email : '',
-          page: this.page
-        },
-      }).then(response => {
-        const responseJson = response.data
-        //console.log('response list users: ', responseJson)
-        if (responseJson.success == true) {
+      try {
+        let responseListUsers = await userApi.listUsers(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.user.first_name ? this.user.first_name : '',
+          this.user.last_name ? this.user.last_name : '',
+          this.user.email ? this.user.email : '',
+          this.page
+        )
+
+        let responseJson = responseListUsers.data
+        if (responseJson.success) {
           this.users = responseJson.users.data
           this.page = responseJson.users.pagination.page
           this.limit = responseJson.users.pagination.perPage
           this.count = responseJson.users.pagination.total
           if (this.users.length > 0) {
             this.users.filter(el => {
-              console.log('el: ', el)
+              //console.log('el: ', el)
               el.status = this.convertSelectedStatus(el.status)
             })
           }
         } else {
-          console.log('Erro')
+          this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar os usuários' })
         }
-      })
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
     },
     clearSearch() {
       this.user.first_name = ''
@@ -122,25 +121,30 @@ export default {
       //console.log('showUser: ', item)
       this.$router.push(`/user/${item.id}`)
     },
-    deleteUser(item) {
-      //console.log('delete user: ', item)
+    notifyDeleteUser(item) {
       this.$confirm(`Tem certeza que deseja deletar o usuário ${item.first_name}?` ).then(() => {
-        const url = `${baseURL}/admin/delete_user`
-        axios.post(url, {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          user_id: item.id
-        }).then(response => {
-          console.log('response delete user: ', response)
-          const responseJson = response.data
-          if (responseJson.success == true) {
+        this.deleteUser(item)
+      })
+    },
+    async deleteUser(item) {
+      //console.log('delete user: ', item)
+        try {
+          let responseDeleteUser = await userApi.deleteUser(
+            21,
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            item.id
+          )
+
+          let responseJson = responseDeleteUser.data
+          if (responseJson.success) {
             this.$toasted.global.defaultSuccess({ msg: 'Usuário deletado com sucesso' })
             this.loadUsers()
           } else {
-            this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar deletar o usuário' })
           }
-        })
-      })
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+        }
     },
     convertStatus(statusName) {
       if (statusName === 'pending') {
@@ -160,7 +164,7 @@ export default {
         return 'c'
       }
     },
-    changeStatus(item, event) {
+    notifyChangeStatus(item, event) {
       //console.log('this.selectedStatus: ', this.selectedStatus)
       //console.log('item: ', item)
       let newStatus, newStatusBr = ''
@@ -178,30 +182,30 @@ export default {
 
       //console.log('newStatus: ', newStatus)
       if (newStatus !== item.status) {
-
         this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
-        
-        const url = `${baseURL}/admin/change_status_user`
-        axios.post(url, {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          person_id: item.id,
-          status: newStatus,
-          type: 'user'
-        }).then(response => {
-          let responseJson = response.data
-          console.log('response update status: ', responseJson)
-          if (responseJson.success) {
-            this.$toasted.global.defaultSuccess({ msg: responseJson.message })
-            this.loadUsers()
-          } else {
-            this.$toasted.global.defaultError({ msg: responseJson.message })
-          }
+          this.changeStatus(item, event, newStatus)
         })
-        }).catch(() => {
-          
-          //this.loadUsers()
-        })
+      }
+    },
+    async changeStatus(item, event, newStatus) {
+      try {
+        let responseChangeStatus = await userApi.changeStatusUser(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          item.id,
+          newStatus,
+          'user'
+        )
+
+        let responseJson = responseChangeStatus.data
+        if (responseJson.success) {
+          this.$toasted.global.defaultSuccess({ msg: responseJson.message })
+          this.loadUsers()
+        } else {
+          this.$toasted.global.defaultError({ msg: responseJson.message })
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },
   },

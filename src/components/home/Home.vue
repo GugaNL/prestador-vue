@@ -28,8 +28,8 @@ export default {
       getStats() {
         axios.get(`${baseURL}/admin/list_stats`, 
         { params: { 
-          id: 22, 
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU"
+          id: 21, 
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M"
            } }).then(response => {
           //console.log('response stat: ', response)
           this.stat = response.data.totalValues

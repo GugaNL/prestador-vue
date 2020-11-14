@@ -208,7 +208,7 @@
       </b-row>
 
       <b-button variant="success" @click="saveProvider">Salvar</b-button>
-      <router-link to="/providers">
+      <router-link to="/prestadores">
         <b-button variant="primary" class="ml-5">Voltar</b-button>
       </router-link>
     </b-form>
@@ -216,10 +216,9 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
 import { stateList  } from '../../config/constants/stateList'
 import { mask } from 'vue-the-mask'
+import providerApi from '../../services/api/providerApi'
 
 export default {
   directives: { mask },
@@ -233,83 +232,90 @@ export default {
     }
   },
   methods: {
-    loadProvider() {
+    async loadProvider() {
       //console.log("id params: ", this.$route.params.id)
-      const url = `${baseURL}/admin/show_provider`
-      axios.get(url, {
-          params: {
-            id: 22,
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            provider_id: this.$route.params.id,
-          },
-        })
-        .then((response) => {
-          console.log("response show_provider: ", response)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-            this.provider = responseJson.provider
-            this.selectedCategory = responseJson.provider.category_id
-            this.selectedState = responseJson.provider.address_state
-          }
-        })
+      try {
+        let responseShowProvider = await providerApi.showProvider(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$route.params.id
+        )
+
+        let responseJson = responseShowProvider.data
+        if (responseJson.success) {
+          this.provider = responseJson.provider
+          this.selectedCategory = responseJson.provider.category_id
+          this.selectedState = responseJson.provider.address_state
+        } else {
+          this.$toasted.global.defaultError({ msg: 'Erro ao tentar exibir o prestador' })
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
     },
-    saveProvider() {
+    async saveProvider() {
       console.log('parametros api provider: ', this.provider)
 
       if (this.editMode) { //Update
-        const url = `${baseURL}/admin/update_provider`
-        axios.post(url, {
-        id: 22,
-        token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-        provider_id: this.provider.id,
-        first_name: this.provider.first_name,
-        last_name: this.provider.last_name,
-        email: this.provider.email,
-        //birth_date: this.provider.birth_date,
-        //gender: this.provider.gender,
-        phone: this.provider.phone,
-        zip_code: this.provider.zip_code,
-        address_street: this.provider.address_street,
-        address_number: this.provider.address_number,
-        address_neighborhood: this.provider.address_neighborhood,
-        address_complement: this.provider.address_complement,
-        address_reference: this.provider.address_reference,
-        address_city: this.provider.address_city,
-        address_state: this.provider.address_state       
-        }).then(response => {
-          console.log('response update provider: ', response.data)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-           this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
+        try {
+          let responseUpdateProvider = await providerApi.updateProvider(
+            21,
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.provider.id,
+            this.provider.first_name,
+            this.provider.last_name,
+            this.provider.email,
+            this.provider.phone,
+            this.provider.zip_code,
+            this.provider.address_street,
+            this.provider.address_number,
+            this.provider.address_neighborhood,
+            this.provider.address_complement,
+            this.provider.address_reference,
+            this.provider.address_city,
+            this.provider.address_state
+          )
+
+          let responseJson = responseUpdateProvider.data
+          console.log('response update provider: ', responseJson)
+          if (responseJson.success) {
+            this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar atualizar o prestador' })
           }
-        })
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+        }
       } else { //Register new
-        const url = `${baseURL}/admin/save_provider`
-        axios.post(url, {
-        id: 22,
-        token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-        first_name: this.provider.first_name,
-        last_name: this.provider.last_name,
-        email: this.provider.email,
-        //birth_date: this.provider.birth_date,
-        //gender: this.provider.gender,
-        phone: this.provider.phone,
-        zip_code: this.provider.zip_code,
-        address_street: this.provider.address_street,
-        address_number: this.provider.address_number,
-        address_neighborhood: this.provider.address_neighborhood,
-        address_complement: this.provider.address_complement,
-        address_reference: this.provider.address_reference,
-        address_city: this.provider.address_city,
-        address_state: this.provider.address_state, 
-        password: this.provider.password     
-        }).then(response => {
-          console.log('response register provider: ', response.data)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-           this.$toasted.global.defaultSuccess({ msg: 'Prestador criado com sucesso' })
+        try {
+          let responseRegisterProvider = await providerApi.registerProvider(
+            21,
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            null, //this.picture,
+            this.provider.first_name,
+            this.provider.last_name,
+            this.provider.email,
+            this.provider.phone,
+            this.provider.zip_code,
+            this.provider.address_street,
+            this.provider.address_number,
+            this.provider.address_neighborhood,
+            this.provider.address_complement,
+            this.provider.address_reference,
+            this.provider.address_city,
+            this.provider.address_state,
+            this.provider.password
+          )
+
+          let responseJson = responseRegisterProvider.data
+          if (responseJson.success) {
+            this.$toasted.global.defaultSuccess({ msg: 'Prestador criado com sucesso' })
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar criar o prestador' })
           }
-        })
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+        }
       }
     },
     onButtonClick() {

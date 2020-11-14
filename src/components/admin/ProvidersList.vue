@@ -20,7 +20,7 @@
           </b-form-group>
         </b-col>
           <b-col md="3" sm="9" class="col-search">
-          <b-button variant="success" class="ml-5" @click="loadproviders">Pesquisar</b-button>
+          <b-button variant="success" class="ml-5" @click="loadProviders">Pesquisar</b-button>
           <b-button variant="primary" class="ml-5" @click="clearSearch">Limpar</b-button>
         </b-col>
       </b-row>
@@ -31,13 +31,13 @@
         <b-button variant="warning" @click="showProvider(data.item)" class="mr-2">
           <i class="fa fa-pencil" />
         </b-button>
-        <b-button variant="danger" @click="deleteProvider(data.item)">
+        <b-button variant="danger" @click="notifyDeleteProvider(data.item)">
           <i class="fa fa-trash" />
         </b-button>
       </template>
 
       <template v-slot:cell(status)="data">
-        <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" v-model="data.item.status" />
+        <b-form-select :options="optionsStatus" v-on:change="notifyChangeStatus(data.item, $event)" v-model="data.item.status" />
       </template>
 
     </b-table>
@@ -49,8 +49,7 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
+import providerApi from '../../services/api/providerApi'
 
 export default {
   name: "provider",
@@ -81,21 +80,19 @@ export default {
     }
   },
   methods: {
-    loadproviders() {
+    async loadProviders() {
       //console.log('params: ', this.provider)
-      const url = `${baseURL}/admin/list_providers`
-      axios.get(url, {
-        params: {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          first_name: this.provider.first_name ? this.provider.first_name : '',
-          last_name: this.provider.last_name ? this.provider.last_name : '',
-          email: this.provider.email ? this.provider.email : '',
-          page: this.page
-        },
-      }).then(response => {
-        const responseJson = response.data
-        //console.log('response list providers: ', responseJson)
+      try {
+        let responseListProviders = await providerApi.listProviders(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.provider.first_name ? this.provider.first_name : '',
+          this.provider.last_name ? this.provider.last_name : '',
+          this.provider.email ? this.provider.email : '',
+          this.page
+        )
+
+        let responseJson = responseListProviders.data
         if (responseJson.success == true) {
           this.providers = responseJson.providers.data
           this.page = responseJson.providers.pagination.page
@@ -108,39 +105,46 @@ export default {
             })
           }
         } else {
-          console.log('Erro')
+          this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar os prestadores' })
         }
-      })
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
     },
     clearSearch() {
       this.provider.first_name = ''
       this.provider.last_name = ''
       this.provider.email = ''
-      this.loadproviders()
+      this.loadProviders()
     },
     showProvider(item) {
       //console.log('showprovider: ', item)
       this.$router.push(`/provider/${item.id}`)
     },
-    deleteProvider(item) {
-      //console.log('delete provider: ', item)
+    notifyDeleteProvider(item){
       this.$confirm(`Tem certeza que deseja deletar o prestador ${item.first_name}?` ).then(() => {
-        const url = `${baseURL}/admin/delete_provider`
-        axios.post(url, {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          provider_id: item.id
-        }).then(response => {
-          console.log('response delete provider: ', response)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-            this.$toasted.global.defaultSuccess({ msg: 'Prestador deletado com sucesso' })
-            this.loadproviders()
-          } else {
-            this.$toasted.global.defaultError({ msg: 'Falha na operação' })
-          }
-        })
+        this.deleteProvider(item)
       })
+    },
+    async deleteProvider(item) {
+      //console.log('delete provider: ', item)
+        try {
+          let responseDeleteProvider = await providerApi.deleteProvider(
+            21,
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            item.id
+          )
+
+          let responseJson = responseDeleteProvider.data
+          if (responseJson.success) {
+            this.$toasted.global.defaultSuccess({ msg: 'Prestador deletado com sucesso' })
+            this.loadProviders()
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar deletar o prestador' })
+          }
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+        }
     },
     convertStatus(statusName) {
       if (statusName === 'pending') {
@@ -160,7 +164,7 @@ export default {
         return 'c'
       }
     },
-    changeStatus(item, event) {
+    notifyChangeStatus(item, event) {
       //console.log('this.selectedStatus: ', this.selectedStatus)
       //console.log('item: ', item)
       let newStatus, newStatusBr = ''
@@ -176,42 +180,43 @@ export default {
         newStatusBr = 'rejeitado'
       }
 
-      //console.log('newStatus: ', newStatus)
       if (newStatus !== item.status) {
-
         this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
-        
-        const url = `${baseURL}/admin/change_status_user`
-        axios.post(url, {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          person_id: item.id,
-          status: newStatus,
-          type: 'provider'
-        }).then(response => {
-          let responseJson = response.data
-          console.log('response update status: ', responseJson)
-          if (responseJson.success) {
-            this.$toasted.global.defaultSuccess({ msg: responseJson.message })
-            this.loadproviders()
-          } else {
-            this.$toasted.global.defaultError({ msg: responseJson.message })
-          }
+          this.changeStatus(item, event, newStatus)
         })
-        }).catch(() => {
-          
-          //this.loadproviders()
-        })
+      }
+    },
+    async changeStatus(item, event, newStatus) {
+      //console.log('newStatus: ', newStatus)
+      try {
+        let responseChangeStatus = await providerApi.changeStatusProvider(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          item.id,
+          newStatus,
+          'provider'
+        )
+
+        let responseJson = responseChangeStatus.data
+        if (responseJson.success) {
+          this.$toasted.global.defaultSuccess({ msg: responseJson.message })
+          this.loadProviders()
+        } else {
+          this.$toasted.global.defaultError({ msg: responseJson.message })
+        }
+      } catch (error) {
+        console.log(error)
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },
   },
   watch: {
     page() {
-      this.loadproviders()
+      this.loadProviders()
     }
   },
   mounted() {
-    this.loadproviders()
+    this.loadProviders()
   },
 }
 </script>

@@ -40,73 +40,75 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
+import categoryApi from '../../services/api/categoryApi'
 
 export default {
     data() {
-        return {
-          category: {},
-          editMode: false
-        }
+      return {
+        category: {},
+        editMode: false
+      }
     },
     methods: {
-      loadCategory() {
-      const url = `${baseURL}/admin/show_category`
-      axios
-        .get(url, {
-          params: {
-            id: 22,
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            category_id: this.$route.params.id,
-          },
-        })
-        .then((response) => {
-          console.log("response show_category: ", response.data)
-          const responseJson = response.data
-          if (responseJson.success == true) {
+      async loadCategory() {
+        try {
+          let responseShowCategory = await categoryApi.showCategory(
+            21,
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$route.params.id
+          )
+
+          let responseJson = responseShowCategory.data
+          if (responseJson.success) {
             this.category = responseJson.category
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar exibir a categoria' })
           }
-        })
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+        }
       },
-      saveCategory() {
+      async saveCategory() {
         console.log('parametros: ', this.category)
 
         if (this.editMode) { //Edit category
-          const url = `${baseURL}/admin/update_category`
-          axios.post(url, {
-            id: 22,
-            token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            category_id: this.category.id,
-            name: this.category.name,
-            description: this.category.description
-          
-          }).then(response => {
-            console.log('response update category: ', response.data)
-            const responseJson = response.data
-            if (responseJson.success == true) {
-              this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
-              console.log('Editado com sucesso')
-            }
-          })
-        } else { //New category
-          const url = `${baseURL}/admin/save_category`
-            axios.post(url, {
-            id: 22,
-            token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            name: this.category.name,
-            description: this.category.description
-          
-          }).then(response => {
-            console.log('response register category: ', response.data)
-            const responseJson = response.data
-            if (responseJson.success == true) {
-              this.$toasted.global.defaultSuccess({ msg: 'Categoria criada com sucesso' })
-              console.log('Cadastrado com sucesso')
-            }
-          })
-        }
+        try {
+          let responseUpdateCategory = await categoryApi.updateCategory(
+            21,
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.category.id,
+            this.category.name,
+            this.category.description
+          )
 
+          let responseJson = responseUpdateCategory.data
+          if (responseJson.success) {
+            this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar editar a categoria' })
+          }
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+        }
+        } else { //New category
+          try {
+            let responseSaveCategory = await categoryApi.saveCategory(
+              21,
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+              this.category.name,
+              this.category.description
+            )
+
+            let responseJson = responseSaveCategory.data
+            if (responseJson.success) {
+              this.$toasted.global.defaultSuccess({ msg: 'Categoria criada com sucesso' })
+            } else {
+              this.$toasted.global.defaultError({ msg: 'Erro ao tentar salvar a categoria' })
+            }
+          } catch (error) {
+            this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+          }
+        }
       }
     },
     mounted() {

@@ -23,13 +23,13 @@
         <b-button variant="warning" @click="showService(data.item)" class="mr-2">
           <i class="fa fa-pencil" />
         </b-button>
-        <b-button variant="danger" @click="deleteService(data.item)">
+        <b-button variant="danger" @click="notifyDelete(data.item)">
           <i class="fa fa-trash" />
         </b-button>
       </template>
 
     <template v-slot:cell(status)="data">
-      <b-form-select :options="optionsStatus" v-on:change="changeStatus(data.item, $event)" v-model="data.item.status" />
+      <b-form-select :options="optionsStatus" v-on:change="notifyChangeStatus(data.item, $event)" v-model="data.item.status" />
     </template>
 
     <template v-slot:cell(name)="data">
@@ -37,11 +37,11 @@
     </template>
 
     <template v-slot:cell(initial_date)="data">
-      <span class="initial-date">{{ data.item.initial_date }} às {{ data.item.initial_time }}</span>
+      <span v-if="data.item.initial_date != 'Invalid date'" class="initial-date">{{ data.item.initial_date }} às {{ data.item.initial_time }}</span>
     </template>
 
     <template v-slot:cell(final_date)="data">
-      <span class="final-date">{{ data.item.final_date }} às {{ data.item.final_time }}</span>
+      <span v-if="data.item.final_date != 'Invalid date'" class="final-date">{{ data.item.final_date }} às {{ data.item.final_time }}</span>
     </template>
 
     </b-table>
@@ -52,8 +52,7 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
+import serviceApi from '../../services/api/serviceApi'
 
 export default {
   data() {
@@ -86,33 +85,30 @@ export default {
     }
   },
   methods: {
-    loadServices() {
-      const url = `${baseURL}/admin/list_services`
+    async loadServices() {
       try {
-        axios.get(url, {
-          params: {
-            id: 22,
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            page: this.page
-          },
-        }).then(response => {
-            const responseJson = response.data
-            //console.log('response list services: ', responseJson)
-            if (responseJson.success == true) {
-                this.services = responseJson.services.data
-                this.page = responseJson.services.pagination.page
-                this.limit = responseJson.services.pagination.perPage
-                this.count = responseJson.services.pagination.total
-                if (this.services.length > 0) {
-                  this.services.filter(el => {
-                    el.status = this.convertSelectedStatus(el.status)
-                  })
-                }
-                //console.log('this.services apos o filter: ', this.services)
-            } else {
-                this.$toasted.global.defaultError({ msg: responseJson.message })
-             }
-        })
+        let responseListServices = await serviceApi.listServices(
+          21, 
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.service.name ? this.service.name : '',
+          this.page
+        )
+
+        let responseJson = responseListServices.data
+
+        if (responseJson.success == true) {
+          this.services = responseJson.services.data
+          this.page = responseJson.services.pagination.page
+          this.limit = responseJson.services.pagination.perPage
+          this.count = responseJson.services.pagination.total
+          if (this.services.length > 0) {
+            this.services.filter(el => {
+              el.status = this.convertSelectedStatus(el.status)
+            })
+          }
+        } else {
+          this.$toasted.global.defaultError({ msg: responseJson.message })
+        }
       } catch (error) {
         this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
@@ -128,13 +124,13 @@ export default {
             return 'd'
         }
     },
-    changeStatus(item, event) {
-        //console.log('this.selectedStatus: ', this.selectedStatus)
-        let newStatus, newStatusBr = ''
+    notifyChangeStatus(item, event) {
+      //console.log('this.selectedStatus: ', this.selectedStatus)
+      let newStatus, newStatusBr = ''
 
-        if (event == 'a') {
-        newStatus = 'pending'
-        newStatusBr = 'pendente'
+      if (event == 'a') {
+      newStatus = 'pending'
+      newStatusBr = 'pendente'
       } else if (event == 'b') {
         newStatus = 'confirmed'
         newStatusBr = 'confirmado'
@@ -148,28 +144,33 @@ export default {
 
       if (newStatus !== item.status) {
         this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
-        
-        const url = `${baseURL}/admin/change_status_service`
-        axios.post(url, {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          service_id: item.id,
-          status: newStatus,
-        }).then(response => {
-          let responseJson = response.data
-          console.log('response change status: ', responseJson)
-          if (responseJson.success) {
-            this.$toasted.global.defaultSuccess({ msg: responseJson.message })
-            this.loadServices()
-          } else {
-            this.$toasted.global.defaultError({ msg: responseJson.message })
-          }
+          this.changeStatus(item, event, newStatus)
         })
-        }).catch(() => {
-          
-          //this.loadServices()
-        })
+
       }
+
+    },
+    async changeStatus(item, event, newStatus) {
+      try {
+        let responseChangeStatusService = await serviceApi.changeStatusService(
+          21,
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          item.id,
+          newStatus
+        )
+
+      let responseJson = responseChangeStatusService.data
+      if (responseJson.success) {
+        this.$toasted.global.defaultSuccess({ msg: responseJson.message })
+        this.loadServices()
+      } else {
+        this.$toasted.global.defaultError({ msg: responseJson.message })
+      }
+
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
+      
     },
     clearSearch() {
       this.service.name = ''
@@ -178,25 +179,30 @@ export default {
     showService(item) {
       this.$router.push(`/service/${item.id}`)
     },
-    deleteService(item) {
-      //console.log('delete service: ', item)
+    notifyDelete(item) {
       this.$confirm(`Tem certeza que deseja deletar o serviço ${item.name}?` ).then(() => {
-        const url = `${baseURL}/admin/delete_service`
-        axios.post(url, {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          service_id: item.id
-        }).then(response => {
-          console.log('response delete service: ', response)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-            this.$toasted.global.defaultSuccess({ msg: 'Serviço deletado com sucesso' })
-            this.loadServices()
-          } else {
-            this.$toasted.global.defaultError({ msg: 'Falha na operação' })
-          }
-        })
+        this.deleteService(item)
       })
+    },
+    async deleteService(item) {
+      try {
+        let responseDeleteService = await serviceApi.deleteService(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          item.id
+        )
+
+        const responseJson = responseDeleteService.data
+        if (responseJson.success == true) {
+          this.$toasted.global.defaultSuccess({ msg: 'Serviço deletado com sucesso' })
+          this.loadServices()
+        } else {
+          this.$toasted.global.defaultError({ msg: responseJson.message })
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
+
     },
   },
   mounted() {

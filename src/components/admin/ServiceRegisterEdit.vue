@@ -163,11 +163,12 @@
                 :serializer="user => user.first_name"
                 placeholder="Nome do cliente"
                 @hit="selectedUser = $event"
+                ref="serviceUser"
               />
               <span v-if="errorEmptyUser" class="empty-user">O campo cliente é obrigatório</span>
             </b-form-group>
             </b-col>
-            <b-col md="4" sm="10" v-if="provider">
+            <b-col md="4" sm="10" v-if="editMode">
               <b-form-group label="Prestador" label-for="service-provider">
                 <b-form-input
                   id="service-provider"
@@ -189,9 +190,10 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
 import moment from "moment"
+import serviceApi from '../../services/api/serviceApi'
+import categoryApi from '../../services/api/categoryApi'
+import userApi from '../../services/api/userApi'
 
 export default {
   data() {
@@ -221,126 +223,157 @@ export default {
     }
   },
   methods: {
-    loadService() {
-      const url = `${baseURL}/admin/show_service`
-      axios.get(url, {
-          params: {
-            id: 22,
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            service_id: this.$route.params.id,
-          },
-        })
-        .then((response) => {
-          //console.log("response show_service: ", response.data)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-            this.service = responseJson.service
-            this.category = responseJson.service.category
-            this.user = responseJson.service.user
-            this.provider = responseJson.service.provider
-            this.initialDate = moment( responseJson.service.initial_date, "DD/MM/YYYY" ).format("YYYY-MM-DD")
-            this.finalDate = moment( responseJson.service.final_date, "DD/MM/YYYY" ).format("YYYY-MM-DD")
-            this.initialTime = moment( responseJson.service.initial_time, "HH:mm" ).format("HH:mm")
-            this.finalTime = moment( responseJson.service.final_time, "HH:mm" ).format("HH:mm")
-            this.selectedStatus = this.convertSelectedStatus( responseJson.service.status )
-            this.selectedCategory = responseJson.service.category_id
-          }
-        })
-    },
-    loadCategories() {
-      const url = `${baseURL}/admin/list_categories_names`
-      axios.get(url, {
-          params: {
-            id: 22,
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU"
-          },
-        })
-        .then((response) => {
-          const responseJsonCategory = response.data
-          if (responseJsonCategory.success == true) {
-            this.optionsCategories = responseJsonCategory.categories.data
-          } else {
-            console.log("Erro")
-          }
-        })
-    },
-    getClients(userName) {
-      const url = `${baseURL}/admin/list_users`
-      axios.get(url, {
-        params: {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          first_name: userName,
-          //page: this.page
-        },
-      }).then(response => {
-        const responseJson = response.data
-        console.log('response list users: ', responseJson)
+    async loadService() {
+      try {
+        let responseShowService = await serviceApi.showService(
+          21,
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.$route.params.id,
+        )
+
+        let responseJson = responseShowService.data
+        console.log('response show service: ', responseJson.service.user)
         if (responseJson.success == true) {
-          this.users = responseJson.users.data
+          this.service = responseJson.service
+          this.category = responseJson.service.category
+
+          this.selectedUser = responseJson.service.user
+
+          this.provider = responseJson.service.provider ? responseJson.service.provider : ""
+          this.initialDate = moment( responseJson.service.initial_date, "DD/MM/YYYY" ).format("YYYY-MM-DD")
+          this.finalDate = moment( responseJson.service.final_date, "DD/MM/YYYY" ).format("YYYY-MM-DD")
+          this.initialTime = moment( responseJson.service.initial_time, "HH:mm" ).format("HH:mm")
+          this.finalTime = moment( responseJson.service.final_time, "HH:mm" ).format("HH:mm")
+          this.selectedStatus = this.convertSelectedStatus( responseJson.service.status )
+          this.selectedCategory = responseJson.service.category_id
+
+
+          this.$refs.serviceUser.inputValue = responseJson.service.user.first_name
         } else {
-          console.log('Erro')
+          this.$toasted.global.defaultError({ msg: responseJson.message })
         }
-      })
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
+
     },
-    saveService() {
+    async loadCategories() {
+      try {
+        let responseListCategories = await categoryApi.listCategories(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+        )
+
+        let responseJson = responseListCategories.data
+        if (responseJson.success == true) {
+          this.optionsCategories = responseJson.categories.data
+        } else {
+          this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar as categorias' })
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha ao tentar listar as categorias' })
+      }
+
+    },
+    async getClients(userName) {
+      try {
+        let responseListUsers = await userApi.listUsers(
+          21,
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          userName,
+          //this.page
+        )
+
+        let responseJson = responseListUsers.data
+        if (responseJson.success == true) {
+          this.users = responseJson.users.data          
+        } else {
+          console.log('Erro ao tentar listar os usuários')
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha ao tentar listar os usuários' })
+      }
+      
+    },
+    async saveService() {
       //console.log("parametros: ", this.service)
+      let formattedInitialDate = null
+      let formattedFinalDate = null
 
       if (this.selectedUser == null || this.selectedUser == '') {
         this.errorEmptyUser = true
       } else {
         this.errorEmptyUser = false
-        let formattedInitialDate = moment(this.service.initial_date, "DD/MM/YYYY").format("YYYY-MM-DD") + " " + this.service.initial_time
-        let formattedFinalDate = moment(this.service.final_date, "DD/MM/YYYY").format("YYYY-MM-DD") + " " + this.service.final_time
 
-        if (this.editMode) {
-          //Update
-          const url = `${baseURL}/admin/update_service`
-          axios.post(url, {
-              id: 22,
-              token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-              service_id: this.service.id,
-              name: this.service.name,
-              description: this.service.description,
-              value: this.service.value,
-              initial_datetime: formattedInitialDate,
-              final_datetime: formattedFinalDate,
-              status: "pending",
-              category_id: this.service.category_id,
-              user_id: this.service.user_id
-            })
-            .then((response) => {
-              console.log("response update service: ", response.data)
-              const responseJson = response.data
-              if (responseJson.success == true) {
-                this.$toasted.global.defaultSuccess({
-                  msg: "Dados alterados com sucesso",
-                })
-              }
-            })
-        } else {
-          console.log('Vai salvar: ', this.selectedUser.id)
-          //New service
-          const url = `${baseURL}/admin/save_service`
-          axios.post(url, {
-              id: 22,
-              token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-              name: this.service.name,
-              description: this.service.description,
-              value: this.service.value,
-              status: this.service.status,
-              category_id: this.service.category_id,
-              user_id: this.selectedUser.id,
-            })
-            .then((response) => {
-              console.log("response register service: ", response.data)
-              const responseJson = response.data
-              if (responseJson.success == true) {
-                this.$toasted.global.defaultSuccess({ msg: "Serviço criado com sucesso" })
-              }
-            })
-        }
+      if (this.service.initial_date != undefined && this.service.initial_time != undefined) {
+        formattedInitialDate = moment(this.service.initial_date, "DD/MM/YYYY").format("YYYY-MM-DD") + " " + this.service.initial_time
+      } else {
+        formattedInitialDate = moment().format("YYYY-MM-DD") + " " + moment().format("HH:mm")
       }
+
+      if (this.service.final_date != undefined && this.service.final_time != undefined) {
+        formattedFinalDate = moment(this.service.final_date, "DD/MM/YYYY").format("YYYY-MM-DD") + " " + this.service.final_time
+      } else {
+        formattedFinalDate = moment().format("YYYY-MM-DD") + " " + moment().format("HH:mm")
+      }
+        
+
+      if (this.editMode) {
+          //Update
+          try {
+            let responseUpdateService = await serviceApi.updateService(
+              21,
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+              this.service.id,
+              this.service.name,
+              this.service.description,
+              this.service.value,
+              formattedInitialDate,
+              formattedFinalDate,
+              this.service.status ? this.service.status : "pending",
+              this.service.category_id,
+              this.service.user_id
+            )
+
+            let responseJson = responseUpdateService.data
+            console.log('response updade service: ', responseJson)
+            if (responseJson.success == true) {
+              this.$toasted.global.defaultSuccess({ msg: "Dados alterados com sucesso" })
+            } else {
+              this.$toasted.global.defaultError({ msg: responseJson.message })
+            }
+          } catch (error) {
+            this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+          }
+
+      } else {
+          console.log('Vai salvar: ', this.selectedCategory)
+          //New service
+          try {
+            let responseSaveService = await serviceApi.saveService(
+              21,
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+              this.service.name,
+              this.service.description,
+              this.service.value,
+              formattedInitialDate,
+              formattedFinalDate,
+              this.service.status ? this.service.status : "pending",
+              this.selectedCategory,
+              this.selectedUser.id,
+            )
+
+            let responseJson = responseSaveService.data
+            if (responseJson.success == true) {
+              this.$toasted.global.defaultSuccess({ msg: "Serviço criado com sucesso" })
+            } else {
+              this.$toasted.global.defaultError({ msg: responseJson.message })
+            }
+          } catch (error) {
+            this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+          }
+      }
+    }
 
   },
     convertSelectedStatus(statusValue) {
@@ -390,5 +423,4 @@ export default {
   margin-top: 0.25rem;
   font-size: 80%;
 }
-
 </style>

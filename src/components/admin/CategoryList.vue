@@ -23,7 +23,7 @@
         <b-button variant="warning" @click="showCategory(data.item)" class="mr-2">
           <i class="fa fa-pencil" />
         </b-button>
-        <b-button variant="danger" @click="deleteCategory(data.item)">
+        <b-button variant="danger" @click="notifyDelete(data.item)">
           <i class="fa fa-trash" />
         </b-button>
       </template>
@@ -36,8 +36,7 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
+import categoryApi from '../../services/api/categoryApi'
 
 export default {
   name: "Category",
@@ -47,10 +46,10 @@ export default {
       category: {},
       categories: [],
       fields: [
-          { key: 'id', label: 'Código', sortable: true },
-          { key: 'name', label: 'Nome', sortable: true },
-          { key: 'description', label: 'Descrição', sortable: false },
-          { key: 'actions', label: 'Ações' }
+        { key: 'id', label: 'Código', sortable: true },
+        { key: 'name', label: 'Nome', sortable: true },
+        { key: 'description', label: 'Descrição', sortable: false },
+        { key: 'actions', label: 'Ações' }
       ],
       page: 1,
       limit: 0,
@@ -58,26 +57,52 @@ export default {
     }
   },
   methods: {
-    loadCategories() {
-      const url = `${baseURL}/admin/list_categories`
-      axios.get(url, {
-        params: {
-          id: 22,
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-          name: this.category.name ? this.category.name : '',
-          page: this.page
-        },
-      }).then(response => {
-        const responseJson = response.data
+    async loadCategories() {
+      try {
+        let responseListCategories = await categoryApi.listCategories(
+        21, 
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+        this.category.name ? this.category.name : '',
+        this.page
+        )
+        let responseJson = responseListCategories.data
+
         if (responseJson.success == true) {
           this.categories = responseJson.categories.data
           this.page = responseJson.categories.pagination.page
           this.limit = responseJson.categories.pagination.perPage
           this.count = responseJson.categories.pagination.total
         } else {
-          console.log('Erro')
+          this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar categorias' })
         }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
+    },
+    notifyDelete(item) {
+      this.$confirm(`Tem certeza que deseja deletar a categoria ${item.name}?` ).then(() => {
+        this.deleteCategory(item)
       })
+    },
+    async deleteCategory(item) {
+      try {
+        let responseDeleteCategory = await categoryApi.deleteCategory(
+        21, 
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+        item.id
+        )
+
+        let responseJson = responseDeleteCategory.data
+
+        if (responseJson.success == true) {
+          this.$toasted.global.defaultSuccess({ msg: 'Categoria deletada com sucesso' })
+          this.loadCategories()
+        } else {
+          this.$toasted.global.defaultError({ msg: 'Erro ao tentar deletar a categoria' })
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
     },
     clearSearch() {
       this.category.name = ''

@@ -4,19 +4,17 @@
     <hr />
     <b-form>
 
-      <div class="conteiner-photo">
-        <b-avatar variant="primary" size="8rem" rounded button @click="onButtonClick" >
-        </b-avatar>
+    <div class="conteiner-photo">
+        <b-avatar variant="primary" size="8rem" rounded button @click="onButtonClick" :src="imageAvatar"  />
 
-        <label class="file-select">
-          <div class="select-button">
-            <span>Alterar</span>
-          </div>
-          <input type="file" @change="handleFileChange"/>
-        </label>
-      </div>
+    </div>
 
-
+    <input type="file"
+       ref="file"
+       :name="uploadFieldName"
+       @change="onFileChange($event.target.name, $event.target.files)"
+       style="display:none"
+    >
 
       <b-row>
         <b-col md="4" sm="10">
@@ -211,7 +209,7 @@
       </b-row>
 
       <b-button variant="success" @click="saveUser">Salvar</b-button>
-      <router-link to="/users">
+      <router-link to="/usuarios">
         <b-button variant="primary" class="ml-5">Voltar</b-button>
       </router-link>
     </b-form>
@@ -219,10 +217,10 @@
 </template>
 
 <script>
-import axios from "axios"
-import { baseURL } from "../../global"
 import { stateList  } from '../../config/constants/stateList'
 import { mask } from 'vue-the-mask'
+import userApi from '../../services/api/userApi'
+//require('/Aprendizado/prestadorservicos-backend/prestador-servicos/public/uploads/1604237092537-bZJOGzqhOzlJPUnaxQYQ.jpeg')
 
 export default {
   directives: { mask },
@@ -230,95 +228,145 @@ export default {
     return {
       user: {},
       editMode: false,
-      listStates: []
+      listStates: [],
+      uploadFieldName: 'file',
+      maxSize: 1024,
+      imageAvatar: '',
+      picture: {},
+      file: ''
     }
   },
   methods: {
-    loadUser() {
+    async loadUser() {
       //console.log("id params: ", this.$route.params.id)
-      const url = `${baseURL}/admin/show_user`
-      axios
-        .get(url, {
-          params: {
-            id: 22,
-            token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-            user_id: this.$route.params.id,
-          },
-        })
-        .then((response) => {
-          console.log("response show_user: ", response)
-          const responseJson = response.data
-          if (responseJson.success == true) {
-            this.user = responseJson.user
-          }
-        })
+      try {
+        let responseShowUser = await userApi.showUser(
+        21, 
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M", 
+        this.$route.params.id
+      )
+
+      let responseJson = responseShowUser.data
+      console.log('response show user: ', responseJson)
+      if (responseJson.success == true) {
+        this.user = responseJson.user
+        if (responseJson.user.image !== null) {
+          //this.imageAvatar = responseJson.user.picture
+          this.imageAvatar = "../../../../prestadorservicos-backend/prestador-servicos/public/uploads/1604237092537-bZJOGzqhOzlJPUnaxQYQ.jpeg"
+          //this.imageAvatar = { id: 1, url: 'C:\\Aprendizado\\prestadorservicos-backend\\prestador-servicos\\public\\uploads\\1604237092537-bZJOGzqhOzlJPUnaxQYQ.jpeg', size: '1mb', original_name: '1604237092537-bZJOGzqhOzlJPUnaxQYQ.jpeg', extension: 'jpg' }
+          //this.imageAvatar = "https://images-na.ssl-images-amazon.com/images/S/sgp-catalog-images/region_US/viacom-Avatar-Sea1-Full-Image_GalleryBackground-en-US-1552014700974._SX1080_.jpg" 
+          console.log('imageAvatar: ', this.imageAvatar)
+        }
+      } else {
+        this.$toasted.global.defaultError({ msg: 'Erro ao tentar exibir usuário' })
+      }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Problemas na operação' })
+      }
     },
-    saveUser() {
-      console.log('parametros api user: ', this.user)
+    async saveUser() {
+      console.log('parametros api user: ', this.user, this.picture)
 
       if (this.editMode) { //Update
-        const url = `${baseURL}/admin/update_user`
-        axios.post(url, {
-        id: 22,
-        token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-        user_id: this.user.id,
-        first_name: this.user.first_name,
-        last_name: this.user.last_name,
-        email: this.user.email,
-        //birth_date: this.user.birth_date,
-        //gender: this.user.gender,
-        phone: this.user.phone,
-        zip_code: this.user.zip_code,
-        address_street: this.user.address_street,
-        address_number: this.user.address_number,
-        address_neighborhood: this.user.address_neighborhood,
-        address_complement: this.user.address_complement,
-        address_reference: this.user.address_reference,
-        address_city: this.user.address_city,
-        address_state: this.user.address_state       
-        }).then(response => {
-          console.log('response update user: ', response.data)
-          const responseJson = response.data
+
+        try {
+          let responseUpdateUser = await userApi.updateUser(
+          21,
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.user.id,
+          this.picture,
+          this.user.first_name,
+          this.user.last_name,
+          this.user.email,
+          //birth_date: this.user.birth_date,
+          //gender: this.user.gender,
+          this.user.phone,
+          this.user.zip_code,
+          this.user.address_street,
+          this.user.address_number,
+          this.user.address_neighborhood,
+          this.user.address_complement,
+          this.user.address_reference,
+          this.user.address_city,
+          this.user.address_state
+          )
+
+          let responseJson = responseUpdateUser.data
           if (responseJson.success == true) {
-           this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
+            this.$toasted.global.defaultSuccess({ msg: 'Dados alterados com sucesso' })
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar atualizar usuário' })
           }
-        })
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Problemas na operação' })
+        }
+
       } else { //Register new
-        const url = `${baseURL}/admin/save_user`
-        axios.post(url, {
-        id: 22,
-        token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIyLCJpYXQiOjE2MDE0MTM5NjN9.a3C95mPHvDDlZpY1H1L6AgdyFaZGHduNFEL4xr1iilU",
-        first_name: this.user.first_name,
-        last_name: this.user.last_name,
-        email: this.user.email,
-        //birth_date: this.user.birth_date,
-        //gender: this.user.gender,
-        phone: this.user.phone,
-        zip_code: this.user.zip_code,
-        address_street: this.user.address_street,
-        address_number: this.user.address_number,
-        address_neighborhood: this.user.address_neighborhood,
-        address_complement: this.user.address_complement,
-        address_reference: this.user.address_reference,
-        address_city: this.user.address_city,
-        address_state: this.user.address_state, 
-        password: this.user.password     
-        }).then(response => {
-          console.log('response register user: ', response.data)
-          const responseJson = response.data
+
+        try {
+          let responseRegisterUser = await userApi.registerUser(
+          21,
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.picture,
+          this.user.first_name,
+          this.user.last_name,
+          this.user.email,
+          //birth_date: this.user.birth_date,
+          //gender: this.user.gender,
+          this.user.phone,
+          this.user.zip_code,
+          this.user.address_street,
+          this.user.address_number,
+          this.user.address_neighborhood,
+          this.user.address_complement,
+          this.user.address_reference,
+          this.user.address_city,
+          this.user.address_state, 
+          this.user.password
+          )
+
+          let responseJson = responseRegisterUser.data
           if (responseJson.success == true) {
-           this.$toasted.global.defaultSuccess({ msg: 'Usuário criado com sucesso' })
+            this.$toasted.global.defaultSuccess({ msg: 'Usuário criado com sucesso' })
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar registar usuário' })
           }
-        })
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Problemas na operação' })
+        }
+
       }
     },
     onButtonClick() {
-      console.log("changePhoto!")
+      this.$refs.file.click()
     },
-    handleFileChange() {
+    onFileChange(fieldName, file) {
+        const { maxSize } = this
+        let imageFile = file[0]
+        if (file.length > 0) {
+          let size = imageFile.size / maxSize / maxSize
+          if (!imageFile.type.match('image.*')) {
+            let errorText = 'Por favor selecione uma imagem'
+            console.log('errorText: ', errorText)
+          } else if (size > 1) {
+            let errorText = 'A imagem deve ter menos de 1MB'
+            console.log('errorText: ', errorText)
+          } else {
+            // Append file into FormData and turn file into image URL
+            let formData = new FormData()
+            let imageURL = URL.createObjectURL(imageFile)
+            formData.append(fieldName, imageFile)
+            console.log('imageFile: ', imageFile)
+            console.log('imageURL: ', imageURL)
+            this.imageAvatar = imageURL
+            this.picture = imageFile
+            console.log('picture: ', this.picture)
+            // Emit the FormData and image URL to the parent component
+            //this.$emit('input', { formData, imageURL })
+          }
+        }
+      },
 
-    }
   },
   mounted() {
     //console.log('props editMode: ', this.$route)
