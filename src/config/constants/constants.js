@@ -5,7 +5,7 @@ export const userKey = '__knowledge_user'
 //Auth
 export const LOGIN = '/auth/login_user'
 export const LOGOUT = '/auth/logout_user'
-export const REFRESH_TOKEN = '/auth/refresh_user'
+export const VALIDATE_TOKEN = '/auth/refresh_user'
 
 //Home
 export const LIST_STATS = '/admin/list_stats'

@@ -34,9 +34,9 @@ export default {
     /**
      * Refresh token
      */
-    refreshToken(token) {
+    validateToken(token) {
         let formdata = new FormData()
         formdata.append('token', token)
-        return api.post(constants.REFRESH_TOKEN, formdata)
+        return api.post(constants.VALIDATE_TOKEN, formdata)
     }
 }

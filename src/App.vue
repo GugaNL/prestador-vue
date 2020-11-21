@@ -2,7 +2,8 @@
   <div id="app" :class="{'hide-menu': !isMenuVisible || !user.email}">
     <Header title="Prestador de serviços - Administração" :hideToggle="!user.email" :hideUserDropdown="!user.email" />
     <Menu v-if="user.email" />
-    <Content />
+    <Loading v-if="validatingToken" />
+    <Content v-else />
     <Footer />
   </div>
 </template>
@@ -12,6 +13,9 @@ import Content from "./components/template/Content"
 import Header from "./components/template/Header"
 import Footer from "./components/template/Footer"
 import Menu from "./components/template/Menu"
+import Loading from './components/template/Loading'
+import authApi from './services/api/authApi'
+import { userKey } from './config/constants/constants'
 
 export default {
   name: "App",
@@ -20,6 +24,41 @@ export default {
     Header,
     Footer,
     Menu,
+    Loading
+  },
+  data() {
+    return {
+      validatingToken: true
+    }
+  },
+  methods: {
+    async validateToken() {
+      this.validatingToken = true
+      const jsonStorage = localStorage.getItem(userKey)
+      const userData = JSON.parse(jsonStorage)
+      this.$store.commit('setUser', {})
+
+      if (!userData) { // Se não encontrar usuario no storage então ja redireciona para tela de login sem executar o resto do codigo por conta do return
+        this.validatingToken = false
+        this.$router.push({ name: 'auth' })
+        return
+      }
+
+      let responseValidateToken = await authApi.validateToken(userData.token)
+
+      let responseJson = responseValidateToken.data
+
+      if (responseJson.success) {
+        this.$store.commit('setUser', userData)
+      } else {
+        this.$toasted.global.defaultError({ msg: responseJson.message })
+        localStorage.removeItem(userKey)
+        this.$store.commit('setUser', {})
+        this.$router.push({ name: 'auth' })
+      }
+
+      this.validatingToken = false
+    }
   },
   computed: {
     isMenuVisible: {
@@ -36,6 +75,9 @@ export default {
       }
     }
   },
+  created() {
+    this.validateToken()
+  }
 }
 </script>
 
