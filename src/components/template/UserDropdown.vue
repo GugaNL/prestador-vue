@@ -14,14 +14,16 @@
         <i class="fa fa-cogs" />Configurações
       </router-link>
       <router-link to="/">
-        <i class="fa fa-sign-out" />Sair 
+        <a @click.prevent="notifyLogout"><i class="fa fa-sign-out" />Sair</a> 
       </router-link>
     </div>
   </div>
 </template>
 
 <script>
-import Gravatar from "vue-gravatar"
+import Gravatar from 'vue-gravatar'
+import authApi from '../../services/api/authApi'
+import { userKey } from '../../config/constants/constants'
 
 export default {
   components: { Gravatar },
@@ -32,6 +34,31 @@ export default {
       },
     },
   },
+  methods: {
+    notifyLogout() {
+      this.$confirm(`Deseja se deslogar do sistema ${this.user.first_name}?` ).then(() => {
+        this.logout()
+      })
+    },
+    async logout() {
+      try {
+        let responseLogout = await authApi.logout(this.$store.getters.user.id, this.$store.getters.user.token)
+
+        let responseJson = responseLogout.data
+        if (responseJson.success) {
+          localStorage.removeItem(userKey)
+          this.$store.commit('setUser', {})
+          this.$toasted.global.defaultSuccess({ msg: 'Deslogado do sistema' })
+          this.$router.push({ name: 'auth' })
+        } else {
+          this.$toasted.global.defaultError({ msg: responseJson.message })
+        }
+      } catch (error) {
+        this.$toasted.global.defaultError({ msg: 'Falha na operação' })
+      }
+
+    }
+  }
 }
 </script>
 
