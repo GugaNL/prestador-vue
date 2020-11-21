@@ -53,8 +53,8 @@ export default {
       async loadCategory() {
         try {
           let responseShowCategory = await categoryApi.showCategory(
-            21,
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$store.getters.user.id, 
+            this.$store.getters.user.token,
             this.$route.params.id
           )
 
@@ -74,8 +74,8 @@ export default {
         if (this.editMode) { //Edit category
         try {
           let responseUpdateCategory = await categoryApi.updateCategory(
-            21,
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$store.getters.user.id, 
+            this.$store.getters.user.token,
             this.category.id,
             this.category.name,
             this.category.description
@@ -93,8 +93,8 @@ export default {
         } else { //New category
           try {
             let responseSaveCategory = await categoryApi.saveCategory(
-              21,
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+              this.$store.getters.user.id, 
+              this.$store.getters.user.token,
               this.category.name,
               this.category.description
             )

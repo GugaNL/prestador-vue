@@ -84,8 +84,8 @@ export default {
       //console.log('params: ', this.user)
       try {
         let responseListUsers = await userApi.listUsers(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.user.first_name ? this.user.first_name : '',
           this.user.last_name ? this.user.last_name : '',
           this.user.email ? this.user.email : '',
@@ -130,8 +130,8 @@ export default {
       //console.log('delete user: ', item)
         try {
           let responseDeleteUser = await userApi.deleteUser(
-            21,
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$store.getters.user.id, 
+            this.$store.getters.user.token,
             item.id
           )
 
@@ -190,8 +190,8 @@ export default {
     async changeStatus(item, event, newStatus) {
       try {
         let responseChangeStatus = await userApi.changeStatusUser(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           item.id,
           newStatus,
           'user'

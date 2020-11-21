@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import Auth from '../components/auth/Auth'
 import Home from '../components/home/Home'
 import AdminPages from '../components/admin/AdminPages'
 import UsersList from '../components/admin/UsersList'
@@ -15,6 +16,7 @@ import ServiceRegisterEdit from '../components/admin/ServiceRegisterEdit'
 Vue.use(VueRouter)
 
 const routes = [
+    { name: 'auth', path: '/auth', component: Auth },
     { name: 'home', path: '/', component: Home },
     { name: 'adminPages', path: '/admin', component: AdminPages },
     { name: 'users', path: '/usuarios', component: UsersList },

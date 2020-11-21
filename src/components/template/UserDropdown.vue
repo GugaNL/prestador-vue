@@ -1,11 +1,11 @@
 <template>
   <div class="user-dropdown">
     <div class="user-button">
-      <span class="d-none d-sm-block">{{ user.name }}</span>
+      <span class="d-none d-sm-block">{{ user.first_name }} {{ user.last_name }}</span>
       <!-- classe bootstrap para só colocar o nome do usuário se couber na tela -->
       <div class="user-dropdown-img">
         <Gravatar :email="user.email" alt="User" />
-        <!--Coloca-se ':' quando quer que interprete a propiedade dentro das aspas -->
+        <!--Coloca-se ':' quando quer que interprete a propriedade dentro das aspas -->
       </div>
       <i class="fa fa-angle-down" />
     </div>
@@ -21,18 +21,18 @@
 </template>
 
 <script>
-import Gravatar from "vue-gravatar";
+import Gravatar from "vue-gravatar"
 
 export default {
   components: { Gravatar },
   computed: {
     user: {
       get() {
-        return this.$store.state.user;
+        return this.$store.getters.user
       },
     },
   },
-};
+}
 </script>
 
 <style>

@@ -60,8 +60,8 @@ export default {
     async loadCategories() {
       try {
         let responseListCategories = await categoryApi.listCategories(
-        21, 
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+        this.$store.getters.user.id, 
+        this.$store.getters.user.token,
         this.category.name ? this.category.name : '',
         this.page
         )
@@ -87,8 +87,8 @@ export default {
     async deleteCategory(item) {
       try {
         let responseDeleteCategory = await categoryApi.deleteCategory(
-        21, 
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+        this.$store.getters.user.id, 
+        this.$store.getters.user.token,
         item.id
         )
 

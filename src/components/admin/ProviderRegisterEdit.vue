@@ -239,8 +239,8 @@ export default {
       //console.log("id params: ", this.$route.params.id)
       try {
         let responseShowProvider = await providerApi.showProvider(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.$route.params.id
         )
 
@@ -262,8 +262,8 @@ export default {
       if (this.editMode) { //Update
         try {
           let responseUpdateProvider = await providerApi.updateProvider(
-            21,
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$store.getters.user.id, 
+            this.$store.getters.user.token,
             this.provider.id,
             this.provider.first_name,
             this.provider.last_name,
@@ -292,8 +292,8 @@ export default {
       } else { //Register new
         try {
           let responseRegisterProvider = await providerApi.registerProvider(
-            21,
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$store.getters.user.id, 
+            this.$store.getters.user.token,
             null, //this.picture,
             this.provider.first_name,
             this.provider.last_name,

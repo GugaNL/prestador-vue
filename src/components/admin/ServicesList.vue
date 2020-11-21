@@ -88,8 +88,8 @@ export default {
     async loadServices() {
       try {
         let responseListServices = await serviceApi.listServices(
-          21, 
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.service.name ? this.service.name : '',
           this.page
         )
@@ -153,8 +153,8 @@ export default {
     async changeStatus(item, event, newStatus) {
       try {
         let responseChangeStatusService = await serviceApi.changeStatusService(
-          21,
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           item.id,
           newStatus
         )
@@ -187,8 +187,8 @@ export default {
     async deleteService(item) {
       try {
         let responseDeleteService = await serviceApi.deleteService(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           item.id
         )
 

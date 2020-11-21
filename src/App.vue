@@ -1,7 +1,7 @@
 <template>
-  <div id="app" :class="{'hide-menu': !isMenuVisible}">
-    <Header title="Prestador de serviços - Administração" :hideToggle="false" :hideUserDropdown="false" />
-    <Menu />
+  <div id="app" :class="{'hide-menu': !isMenuVisible || !user.email}">
+    <Header title="Prestador de serviços - Administração" :hideToggle="!user.email" :hideUserDropdown="!user.email" />
+    <Menu v-if="user.email" />
     <Content />
     <Footer />
   </div>
@@ -24,12 +24,17 @@ export default {
   computed: {
     isMenuVisible: {
       get() {
-        return this.$store.state.menu.isMenuVisible
+        return this.$store.getters.isMenuVisible
       },
       set() {
         return this.$store.commit("toggleMenu")
       },
     },
+    user: {
+      get() {
+        return this.$store.getters.user
+      }
+    }
   },
 }
 </script>

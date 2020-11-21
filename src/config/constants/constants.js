@@ -1,5 +1,14 @@
 export const baseURL = 'http://localhost:3333/v1'
 
+export const userKey = '__knowledge_user'
+
+//Auth
+export const LOGIN = '/auth/login_user'
+export const LOGOUT = '/auth/logout_user'
+export const REFRESH_TOKEN = '/auth/refresh_user'
+
+//Home
+export const LIST_STATS = '/admin/list_stats'
 
 //User
 export const REGISTER_USER_BY_ADMIN = '/admin/save_user'

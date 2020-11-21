@@ -35,7 +35,7 @@ export default {
     computed: {
         isMenuVisible: {
             get() {
-                return this.$store.state.menu.isMenuVisible
+                return this.$store.getters.isMenuVisible
             },
             set() {
                 return this.$store.commit('toggleMenu')

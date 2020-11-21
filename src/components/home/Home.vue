@@ -13,8 +13,7 @@
 <script>
 import PageTitle from '../template/PageTitle'
 import Stat from './Stat'
-import axios from 'axios'
-import { baseURL } from '../../global'
+import homeApi from '../../services/api/homeApi'
 
 export default {
     name: 'Home',
@@ -25,15 +24,20 @@ export default {
       }
     },
     methods: {
-      getStats() {
-        axios.get(`${baseURL}/admin/list_stats`, 
-        { params: { 
-          id: 21, 
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M"
-           } }).then(response => {
-          //console.log('response stat: ', response)
-          this.stat = response.data.totalValues
-        })
+      async getStats() {
+        //console.log('store no getStats: ', this.$store.getters.user)
+        try {
+          let responseListStats = await homeApi.listStats(this.$store.getters.user.id, this.$store.getters.user.token)
+
+          let responseJson = responseListStats.data
+          if (responseJson.success) {
+            this.stat = responseJson.totalValues
+          } else {
+            this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar as quantidades' })
+          }
+        } catch (error) {
+          this.$toasted.global.defaultError({ msg: 'Falha ao tentar listar as quantidades' })
+        }
       }
     },
     mounted() { //lifecicle chamado ao montar a tela

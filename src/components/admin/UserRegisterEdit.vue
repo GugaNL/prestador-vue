@@ -241,8 +241,8 @@ export default {
       //console.log("id params: ", this.$route.params.id)
       try {
         let responseShowUser = await userApi.showUser(
-        21, 
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M", 
+        this.$store.getters.user.id, 
+        this.$store.getters.user.token,
         this.$route.params.id
       )
 
@@ -271,8 +271,8 @@ export default {
 
         try {
           let responseUpdateUser = await userApi.updateUser(
-          21,
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.user.id,
           this.picture,
           this.user.first_name,
@@ -305,8 +305,8 @@ export default {
 
         try {
           let responseRegisterUser = await userApi.registerUser(
-          21,
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.picture,
           this.user.first_name,
           this.user.last_name,

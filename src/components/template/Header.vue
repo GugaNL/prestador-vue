@@ -23,7 +23,7 @@ export default {
     },
     computed: {
         icon() {
-            return this.$store.state.menu.isMenuVisible ? "fa-angle-left" : "fa-angle-down"
+            return this.$store.getters.isMenuVisible ? "fa-angle-left" : "fa-angle-down"
         }
     },
     methods: {

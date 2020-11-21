@@ -226,8 +226,8 @@ export default {
     async loadService() {
       try {
         let responseShowService = await serviceApi.showService(
-          21,
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M",
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.$route.params.id,
         )
 
@@ -260,8 +260,8 @@ export default {
     async loadCategories() {
       try {
         let responseListCategories = await categoryApi.listCategories(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
         )
 
         let responseJson = responseListCategories.data
@@ -278,8 +278,8 @@ export default {
     async getClients(userName) {
       try {
         let responseListUsers = await userApi.listUsers(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           userName,
           //this.page
         )
@@ -322,8 +322,8 @@ export default {
           //Update
           try {
             let responseUpdateService = await serviceApi.updateService(
-              21,
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+              this.$store.getters.user.id, 
+              this.$store.getters.user.token,
               this.service.id,
               this.service.name,
               this.service.description,
@@ -351,8 +351,8 @@ export default {
           //New service
           try {
             let responseSaveService = await serviceApi.saveService(
-              21,
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+              this.$store.getters.user.id, 
+              this.$store.getters.user.token,
               this.service.name,
               this.service.description,
               this.service.value,

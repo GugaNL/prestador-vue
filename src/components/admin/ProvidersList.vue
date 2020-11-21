@@ -84,8 +84,8 @@ export default {
       //console.log('params: ', this.provider)
       try {
         let responseListProviders = await providerApi.listProviders(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           this.provider.first_name ? this.provider.first_name : '',
           this.provider.last_name ? this.provider.last_name : '',
           this.provider.email ? this.provider.email : '',
@@ -130,8 +130,8 @@ export default {
       //console.log('delete provider: ', item)
         try {
           let responseDeleteProvider = await providerApi.deleteProvider(
-            21,
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+            this.$store.getters.user.id, 
+            this.$store.getters.user.token,
             item.id
           )
 
@@ -190,8 +190,8 @@ export default {
       //console.log('newStatus: ', newStatus)
       try {
         let responseChangeStatus = await providerApi.changeStatusProvider(
-          21,
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIxLCJpYXQiOjE2MDM3OTk2OTh9.BMNO9BwUtn4prlopbmAlzUEi3EqZGvPLzh2S3N7zJ2M',
+          this.$store.getters.user.id, 
+          this.$store.getters.user.token,
           item.id,
           newStatus,
           'provider'
