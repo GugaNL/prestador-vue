@@ -1,5 +1,15 @@
 <template>
   <div class="user">
+
+    <b-breadcrumb>
+      <b-breadcrumb-item to="/">
+        <b-icon icon="house-fill" scale="1.25" shift-v="1.25" aria-hidden="true" class="bread-icon" />
+        Principal
+      </b-breadcrumb-item>
+      <b-breadcrumb-item to="/usuarios">Listar usuários</b-breadcrumb-item>
+      <b-breadcrumb-item active>Usuário</b-breadcrumb-item>
+    </b-breadcrumb>
+
     <h3>Detalhes do usuário</h3>
     <hr />
     <b-form>
@@ -401,5 +411,16 @@ export default {
   display: none;
 }
 
+.bread-icon {
+  margin-right: 5px;
+}
+
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+.breadcrumb-item > a:hover {
+  text-decoration: none;
+}
 
 </style>

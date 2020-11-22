@@ -11,10 +11,14 @@
     </div>
     <div class="user-dropdown-content">
       <router-link to="/admin">
-        <i class="fa fa-cogs" />Configurações
+        <i class="fa fa-cogs router-icon" />
+        <span class="router-item">Configurações</span>
       </router-link>
       <router-link to="/">
-        <a @click.prevent="notifyLogout"><i class="fa fa-sign-out" />Sair</a> 
+        <a @click.prevent="notifyLogout">
+          <i class="fa fa-sign-out router-icon" />
+          <span class="router-item">Sair</span>
+        </a> 
       </router-link>
     </div>
   </div>
@@ -123,5 +127,14 @@ export default {
   text-decoration: none;
   color: #2e2e2e;
   background-color: #ededed;
+}
+
+.router-icon {
+  margin-right: 10px;
+  color: cornflowerblue;
+}
+
+.router-item {
+  color: cornflowerblue;
 }
 </style>

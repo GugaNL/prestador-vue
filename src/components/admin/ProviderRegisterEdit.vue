@@ -1,5 +1,15 @@
 <template>
   <div class="provider">
+
+    <b-breadcrumb>
+      <b-breadcrumb-item to="/">
+        <b-icon icon="house-fill" scale="1.25" shift-v="1.25" aria-hidden="true" class="bread-icon" />
+        Principal
+      </b-breadcrumb-item>
+      <b-breadcrumb-item to="/prestadores">Listar prestadores</b-breadcrumb-item>
+      <b-breadcrumb-item active>Prestador</b-breadcrumb-item>
+    </b-breadcrumb>
+
     <h3>Detalhes do prestador</h3>
     <hr />
     <b-form>
@@ -384,5 +394,15 @@ export default {
   display: none;
 }
 
+.bread-icon {
+  margin-right: 5px;
+}
 
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+.breadcrumb-item > a:hover {
+  text-decoration: none;
+}
 </style>

@@ -16,6 +16,7 @@ export default {
 <style>
     .page-title h1 {
         margin: 0px;
+        color: cornflowerblue;
     }
 
     .page-title h2 {
@@ -23,4 +24,9 @@ export default {
         margin-top: 5px;
         font-size: 1.3rem;
     }
+
+    .page-title i {
+        margin-right: 10px;
+    }
+
 </style>

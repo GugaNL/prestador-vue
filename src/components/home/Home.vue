@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-      <PageTitle icon="fa fa-home" title="Home" subTitle="Informações gerais" />
+      <PageTitle icon="fa fa-home" title="Painel Administrativo" subTitle="Informações gerais" />
       <div class="stats">
         <Stat title="Categorias" route="/categorias" :value="stat.totalCategories" icon="fa fa-folder" color="#d54d50" />
         <Stat title="Serviços" route="/servicos" :value="stat.totalServices" icon="fa fa-file" color="#3bc480" />

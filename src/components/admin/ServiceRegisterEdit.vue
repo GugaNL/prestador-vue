@@ -1,5 +1,15 @@
 <template>
   <div class="service">
+
+    <b-breadcrumb>
+      <b-breadcrumb-item to="/">
+        <b-icon icon="house-fill" scale="1.25" shift-v="1.25" aria-hidden="true" class="bread-icon" />
+        Principal
+      </b-breadcrumb-item>
+      <b-breadcrumb-item to="/servicos">Listar serviços</b-breadcrumb-item>
+      <b-breadcrumb-item active>Serviço</b-breadcrumb-item>
+    </b-breadcrumb>
+
     <h3>Serviço</h3>
     <hr />
 
@@ -422,5 +432,17 @@ export default {
   color: #dc3545;
   margin-top: 0.25rem;
   font-size: 80%;
+}
+
+.bread-icon {
+  margin-right: 5px;
+}
+
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+.breadcrumb-item > a:hover {
+  text-decoration: none;
 }
 </style>

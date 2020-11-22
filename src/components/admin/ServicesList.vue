@@ -1,5 +1,12 @@
 <template>
   <div class="service">
+    <b-breadcrumb>
+      <b-breadcrumb-item to="/">
+        <b-icon icon="house-fill" scale="1.25" shift-v="1.25" aria-hidden="true" class="bread-icon" />
+        Principal
+      </b-breadcrumb-item>
+      <b-breadcrumb-item active>Lista de serviços</b-breadcrumb-item>
+    </b-breadcrumb>
     <h3>Lista de serviços</h3>
     <hr>
     <div class="service-content">
@@ -220,7 +227,20 @@ export default {
 .initial-date {
   color: darkgreen;
 }
+
 .final-date {
   color: blue;
+}
+
+.bread-icon {
+  margin-right: 5px;
+}
+
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+.breadcrumb-item > a:hover {
+  text-decoration: none;
 }
 </style>
