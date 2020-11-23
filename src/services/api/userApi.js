@@ -84,8 +84,8 @@ export default {
     /**
      * List users
      */
-    listUsers(id, token, first_name, last_name, email) {
-        return api.get(constants.LIST_USERS, { params: { id, token, first_name, last_name, email } })
+    listUsers(id, token, first_name, last_name, email, page) {
+        return api.get(constants.LIST_USERS, { params: { id, token, first_name, last_name, email, page } })
     },
     /**
      * Delete a user
