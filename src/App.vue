@@ -50,6 +50,7 @@ export default {
 
       if (responseJson.success) {
         this.$store.commit('setUser', userData)
+        this.$store.commit('toggleMenu', true)
       } else {
         this.$toasted.global.defaultError({ msg: responseJson.message })
         localStorage.removeItem(userKey)
