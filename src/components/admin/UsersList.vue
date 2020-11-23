@@ -100,6 +100,7 @@ export default {
         )
 
         let responseJson = responseListUsers.data
+        console.log('response list users: ', responseJson)
         if (responseJson.success) {
           this.users = responseJson.users.data
           this.page = responseJson.users.pagination.page

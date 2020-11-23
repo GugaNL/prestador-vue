@@ -53,6 +53,16 @@
       </b-row>
 
       <b-row>
+        <b-col md="2" sm="10">
+          <b-form-group label="Gênero" label-for="user-gender">
+            <b-form-select v-model="user.gender" :options="listGenders">
+              <option :value="user.gender">{{ listGenders.text }}</option>
+            </b-form-select>
+          </b-form-group>
+        </b-col>
+      </b-row>
+
+      <b-row>
         <b-col md="4" sm="10">
           <b-form-group label="Email" label-for="user-email">
             <b-form-input
@@ -239,6 +249,10 @@ export default {
       user: {},
       editMode: false,
       listStates: [],
+      listGenders: [ 
+        { value: 'Male', text: 'Masculino' },
+        { value: 'Female', text: 'Feminino' }
+      ],
       uploadFieldName: 'file',
       maxSize: 1024,
       imageAvatar: '',
@@ -287,9 +301,9 @@ export default {
           this.picture,
           this.user.first_name,
           this.user.last_name,
+          this.user.gender,
+          this.user.birth_date,
           this.user.email,
-          //birth_date: this.user.birth_date,
-          //gender: this.user.gender,
           this.user.phone,
           this.user.zip_code,
           this.user.address_street,
@@ -312,7 +326,6 @@ export default {
         }
 
       } else { //Register new
-
         try {
           let responseRegisterUser = await userApi.registerUser(
           this.$store.getters.user.id, 
@@ -320,9 +333,10 @@ export default {
           this.picture,
           this.user.first_name,
           this.user.last_name,
+          this.user.gender,
+          this.user.birth_date,
+          this.user.document,
           this.user.email,
-          //birth_date: this.user.birth_date,
-          //gender: this.user.gender,
           this.user.phone,
           this.user.zip_code,
           this.user.address_street,

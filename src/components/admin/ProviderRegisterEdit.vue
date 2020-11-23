@@ -52,6 +52,16 @@
       </b-row>
 
       <b-row>
+        <b-col md="2" sm="10">
+          <b-form-group label="Gênero" label-for="provider-gender">
+            <b-form-select v-model="provider.gender" :options="listGenders">
+              <option :value="provider.gender">{{ listGenders.text }}</option>
+            </b-form-select>
+          </b-form-group>
+        </b-col>
+      </b-row>
+
+      <b-row>
         <b-col md="4" sm="10">
           <b-form-group label="Email" label-for="provider-email">
             <b-form-input
@@ -187,7 +197,9 @@
 
         <b-col md="4" sm="10">
             <b-form-group label="Estado" label-for="provider-address-state">
-                <b-form-select v-model="selectedState" :options="listStates" />
+              <b-form-select v-model="provider.address_state" :options="listStates">
+              <option :value="provider.address_state">{{ listStates.text }}</option>
+            </b-form-select>
             </b-form-group>
         </b-col>
       </b-row>
@@ -235,6 +247,10 @@ export default {
       provider: {},
       editMode: false,
       listStates: [],
+      listGenders: [ 
+        { value: 'Male', text: 'Masculino' },
+        { value: 'Female', text: 'Feminino' }
+      ],
       selectedCategory: "",
       selectedState: "",
       uploadFieldName: 'file',
@@ -274,9 +290,13 @@ export default {
           let responseUpdateProvider = await providerApi.updateProvider(
             this.$store.getters.user.id, 
             this.$store.getters.user.token,
+            this.picture,
             this.provider.id,
             this.provider.first_name,
             this.provider.last_name,
+            this.provider.gender,
+            this.provider.birth_date,
+            this.provider.document,
             this.provider.email,
             this.provider.phone,
             this.provider.zip_code,
@@ -304,9 +324,12 @@ export default {
           let responseRegisterProvider = await providerApi.registerProvider(
             this.$store.getters.user.id, 
             this.$store.getters.user.token,
-            null, //this.picture,
+            this.picture,
             this.provider.first_name,
             this.provider.last_name,
+            this.provider.gender,
+            this.provider.birth_date,
+            this.provider.document,
             this.provider.email,
             this.provider.phone,
             this.provider.zip_code,

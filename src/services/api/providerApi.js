@@ -17,16 +17,20 @@ export default {
     /**
     * Register provider by admin
     */
-    registerProvider(id, token, provider_image, first_name, last_name, email, phone,
+    registerProvider(id, token, provider_image, first_name, last_name, gender, birth_date, document, email, phone,
         zip_code, address_street, address_number, address_neighborhood, address_complement,
-        address_reference, address_city, address_state) {
+        address_reference, address_city, address_state, password) {
         let formdata = new FormData()
         formdata.append('id', id)
         formdata.append('token', token)
-        //formdata.append('provider_image', provider_image)
+        formdata.append('provider_image', provider_image)
         formdata.append('first_name', first_name)
         formdata.append('last_name', last_name)
+        formdata.append('gender', gender)
+        formdata.append('birth_date', birth_date)
+        formdata.append('document', document)
         formdata.append('email', email)
+        formdata.append('phone', phone)
         formdata.append('zip_code', zip_code)
         formdata.append('address_street', address_street)
         formdata.append('address_number', address_number)
@@ -35,6 +39,7 @@ export default {
         formdata.append('address_reference', address_reference)
         formdata.append('address_city', address_city)
         formdata.append('address_state', address_state)
+        formdata.append('password', password)
 
         return api.post(constants.REGISTER_PROVIDER_BY_ADMIN, formdata)
     },
@@ -42,18 +47,20 @@ export default {
     /**
      * Update a provider
      */
-    updateProvider(id, token, provider_id, first_name, last_name, email, phone, zip_code, 
+    updateProvider(id, token, provider_image, provider_id, first_name, last_name, gender, birth_date, document, email, phone, zip_code, 
         address_street, address_number, address_neighborhood, address_complement, address_reference,
         address_city, address_state) {
-        console.log('parametros: ', id, token, provider_id, first_name, last_name, email, phone, zip_code, 
-        address_street, address_number, address_neighborhood, address_complement, address_reference,
-        address_city, address_state)
+
         let formdata = new FormData()
         formdata.append('id', id)
         formdata.append('token', token)
+        formdata.append('provider_image', provider_image)
         formdata.append('provider_id', provider_id)
         formdata.append('first_name', first_name)
         formdata.append('last_name', last_name)
+        formdata.append('gender', gender)
+        formdata.append('birth_date', birth_date)
+        formdata.append('document', document)
         formdata.append('email', email)
         formdata.append('phone', phone)
         formdata.append('zip_code', zip_code)
