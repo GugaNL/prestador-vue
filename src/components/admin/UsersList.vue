@@ -110,6 +110,7 @@ export default {
             this.users.filter(el => {
               //console.log('el: ', el)
               el.status = this.convertSelectedStatus(el.status)
+              el.currentStatus = el.status
             })
           }
         } else {
@@ -190,8 +191,15 @@ export default {
 
       //console.log('newStatus: ', newStatus)
       if (newStatus !== item.status) {
-        this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
+        this.$confirm(
+          `Tem certeza que deseja mudar o status do usuário para ${newStatusBr}?`, 
+          'Aviso', 
+          'warning', 
+          { confirmButtonText: 'Confirmar', cancelButtonText: 'Cancelar' })
+        .then(() => {
           this.changeStatus(item, event, newStatus)
+        }).catch(() => {
+          item.status = item.currentStatus
         })
       }
     },

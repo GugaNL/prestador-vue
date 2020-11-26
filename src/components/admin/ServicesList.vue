@@ -111,6 +111,7 @@ export default {
           if (this.services.length > 0) {
             this.services.filter(el => {
               el.status = this.convertSelectedStatus(el.status)
+              el.currentStatus = el.status
             })
           }
         } else {
@@ -150,12 +151,18 @@ export default {
       }
 
       if (newStatus !== item.status) {
-        this.$confirm(`Tem certeza que deseja mudar o status para ${newStatusBr}?`).then(() => {
+        this.$confirm(
+          `Tem certeza que deseja mudar o status do serviço para ${newStatusBr}?`, 
+          'Aviso', 
+          'warning', 
+          { confirmButtonText: 'Confirmar', cancelButtonText: 'Cancelar' })
+        .then(() => {
           this.changeStatus(item, event, newStatus)
+        }).catch(() => {
+          item.status = item.currentStatus
         })
-
       }
-
+      
     },
     async changeStatus(item, event, newStatus) {
       try {
