@@ -10,6 +10,7 @@
     <h3>Lista de Usuários</h3>
     <hr>
     <div class="user-content">
+      <loading :active.sync="loading" :can-cancel="false" is-full-page="true" color="#4169E1" />
     <b-form>
       <input id="user-id" type="hidden" v-model="user.id">
       <b-row>
@@ -57,9 +58,14 @@
 
 <script>
 import userApi from '../../services/api/userApi'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   name: "User",
+  components: {
+    Loading
+  },
   data() {
     return {
       mode: "save",
@@ -83,13 +89,15 @@ export default {
     page: 1,
     limit: 0,
     count: 0,
-    selectedStatus: ''
+    selectedStatus: '',
+    loading: false
     }
   },
   methods: {
     async loadUsers() {
       //console.log('params: ', this.user)
       try {
+        this.loading = true
         let responseListUsers = await userApi.listUsers(
           this.$store.getters.user.id, 
           this.$store.getters.user.token,
@@ -100,6 +108,7 @@ export default {
         )
 
         let responseJson = responseListUsers.data
+        this.loading = false
         console.log('response list users: ', responseJson)
         if (responseJson.success) {
           this.users = responseJson.users.data
@@ -117,6 +126,7 @@ export default {
           this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar os usuários' })
         }
       } catch (error) {
+        this.loading = false
         this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },

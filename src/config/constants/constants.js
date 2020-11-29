@@ -1,5 +1,3 @@
-export const baseURL = 'http://localhost:3333/v1'
-
 export const userKey = '__knowledge_user'
 
 //Auth

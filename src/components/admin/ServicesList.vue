@@ -10,6 +10,7 @@
     <h3>Lista de serviços</h3>
     <hr>
     <div class="service-content">
+      <loading :active.sync="loading" :can-cancel="false" is-full-page="true" color="#4169E1" />
     <b-form>
       <input id="service-id" type="hidden" v-model="service.id">
       <b-row>
@@ -60,10 +61,15 @@
 
 <script>
 import serviceApi from '../../services/api/serviceApi'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   data() {
     return {
+      components: {
+        Loading
+      },
       mode: "save",
       service: {},
       services: [],
@@ -89,11 +95,13 @@ export default {
       page: 1,
       limit: 0,
       count: 0,
+      loading: false
     }
   },
   methods: {
     async loadServices() {
       try {
+        this.loading = true
         let responseListServices = await serviceApi.listServices(
           this.$store.getters.user.id, 
           this.$store.getters.user.token,
@@ -102,7 +110,7 @@ export default {
         )
 
         let responseJson = responseListServices.data
-
+        this.loading = false
         if (responseJson.success == true) {
           this.services = responseJson.services.data
           this.page = responseJson.services.pagination.page
@@ -118,6 +126,7 @@ export default {
           this.$toasted.global.defaultError({ msg: responseJson.message })
         }
       } catch (error) {
+        this.loading = false
         this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },

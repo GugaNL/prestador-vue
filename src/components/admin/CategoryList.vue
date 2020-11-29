@@ -12,6 +12,7 @@
     <h3>Lista de categorias</h3>
     <hr>
     <div class="category-content">
+    <loading :active.sync="loading" :can-cancel="false" is-full-page="true" color="#4169E1" />
     <b-form>
       <input id="category-id" type="hidden" v-model="category.id">
       <b-row>
@@ -46,9 +47,14 @@
 
 <script>
 import categoryApi from '../../services/api/categoryApi'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   name: "Category",
+  components: {
+    Loading
+  },
   data() {
     return {
       mode: "save",
@@ -62,12 +68,14 @@ export default {
       ],
       page: 1,
       limit: 0,
-      count: 0
+      count: 0,
+      loading: false
     }
   },
   methods: {
     async loadCategories() {
       try {
+        this.loading = true
         let responseListCategories = await categoryApi.listCategories(
         this.$store.getters.user.id, 
         this.$store.getters.user.token,
@@ -75,7 +83,7 @@ export default {
         this.page
         )
         let responseJson = responseListCategories.data
-
+        this.loading = false
         if (responseJson.success == true) {
           this.categories = responseJson.categories.data
           this.page = responseJson.categories.pagination.page
@@ -85,6 +93,7 @@ export default {
           this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar categorias' })
         }
       } catch (error) {
+        this.loading = false
         this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },

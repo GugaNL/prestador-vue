@@ -12,44 +12,43 @@
     <h3>Lista de Prestadores</h3>
     <hr>
     <div class="provider-content">
-    <b-form>
-      <input id="provider-id" type="hidden" v-model="provider.id">
-      <b-row>
-        <b-col md="3" sm="9">
-          <b-form-group label="Nome" label-for="provider-name"> <!--label-for é o id do input  -->
-            <b-form-input id="provider-name" type="text" v-model="provider.first_name" placeholder="Nome do prestador" />
-          </b-form-group>
-          <b-form-group label="Sobrenome" label-for="provider-lastname"> <!--label-for é o id do input  -->
-            <b-form-input id="provider-lastname" type="text" v-model="provider.last_name" placeholder="Sobrenome do prestador" />
-          </b-form-group>
-        </b-col>
-        <b-col md="3" sm="9">
-          <b-form-group label="Email" label-for="provider-email"> <!--label-for é o id do input  -->
-            <b-form-input id="provider-email" type="text" v-model="provider.email" placeholder="Email do prestador" />
-          </b-form-group>
-        </b-col>
-          <b-col md="3" sm="9" class="col-search">
-          <b-button variant="success" class="ml-5" @click="loadProviders">Pesquisar</b-button>
-          <b-button variant="primary" class="ml-5" @click="clearSearch">Limpar</b-button>
-        </b-col>
-      </b-row>
-    </b-form>
+      <loading :active.sync="loading" :can-cancel="false" is-full-page="true" color="#4169E1" />
+      <b-form>
+        <input id="provider-id" type="hidden" v-model="provider.id">
+        <b-row>
+          <b-col md="3" sm="9">
+            <b-form-group label="Nome" label-for="provider-name"> <!--label-for é o id do input  -->
+              <b-form-input id="provider-name" type="text" v-model="provider.first_name" placeholder="Nome do prestador" />
+            </b-form-group>
+            <b-form-group label="Sobrenome" label-for="provider-lastname"> <!--label-for é o id do input  -->
+              <b-form-input id="provider-lastname" type="text" v-model="provider.last_name" placeholder="Sobrenome do prestador" />
+            </b-form-group>
+          </b-col>
+          <b-col md="3" sm="9">
+            <b-form-group label="Email" label-for="provider-email"> <!--label-for é o id do input  -->
+              <b-form-input id="provider-email" type="text" v-model="provider.email" placeholder="Email do prestador" />
+            </b-form-group>
+          </b-col>
+            <b-col md="3" sm="9" class="col-search">
+            <b-button variant="success" class="ml-5" @click="loadProviders">Pesquisar</b-button>
+            <b-button variant="primary" class="ml-5" @click="clearSearch">Limpar</b-button>
+          </b-col>
+        </b-row>
+      </b-form>
 
-    <b-table hover striped :items="providers" :fields="fields" class="text-center">
-      <template v-slot:cell(actions)="data">
-        <b-button variant="warning" @click="showProvider(data.item)" class="mr-2">
-          <i class="fa fa-pencil" />
-        </b-button>
-        <b-button variant="danger" @click="notifyDeleteProvider(data.item)">
-          <i class="fa fa-trash" />
-        </b-button>
-      </template>
-
-      <template v-slot:cell(status)="data">
-        <b-form-select :options="optionsStatus" v-on:change="notifyChangeStatus(data.item, $event)" v-model="data.item.status" />
-      </template>
-
-    </b-table>
+      <b-table hover striped :items="providers" :fields="fields" class="text-center">
+        <template v-slot:cell(actions)="data">
+          <b-button variant="warning" @click="showProvider(data.item)" class="mr-2">
+            <i class="fa fa-pencil" />
+          </b-button>
+          <b-button variant="danger" @click="notifyDeleteProvider(data.item)">
+            <i class="fa fa-trash" />
+          </b-button>
+        </template>
+        <template v-slot:cell(status)="data">
+          <b-form-select :options="optionsStatus" v-on:change="notifyChangeStatus(data.item, $event)" v-model="data.item.status" />
+        </template>
+      </b-table>
 
     <b-pagination size="md" v-model="page" :total-rows="count" :per-page="limit" />
     </div>
@@ -59,9 +58,14 @@
 
 <script>
 import providerApi from '../../services/api/providerApi'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   name: "provider",
+    components: {
+    Loading
+  },
   data() {
     return {
       mode: "save",
@@ -85,13 +89,15 @@ export default {
     page: 1,
     limit: 0,
     count: 0,
-    selectedStatus: ''
+    selectedStatus: '',
+    loading: false
     }
   },
   methods: {
     async loadProviders() {
       //console.log('params: ', this.provider)
       try {
+        this.loading = true
         let responseListProviders = await providerApi.listProviders(
           this.$store.getters.user.id, 
           this.$store.getters.user.token,
@@ -102,6 +108,7 @@ export default {
         )
 
         let responseJson = responseListProviders.data
+        this.loading = false
         if (responseJson.success == true) {
           this.providers = responseJson.providers.data
           this.page = responseJson.providers.pagination.page
@@ -118,6 +125,7 @@ export default {
           this.$toasted.global.defaultError({ msg: 'Erro ao tentar listar os prestadores' })
         }
       } catch (error) {
+        this.loading = false
         this.$toasted.global.defaultError({ msg: 'Falha na operação' })
       }
     },
